@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shr25.robot.qq.mapper.qqPlugin.QqPluginMapper">
+  <resultMap id="BaseResultMap" type="com.shr25.robot.qq.model.qqPlugin.QqPlugin">
+    <result column="id" jdbcType="BIGINT" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="plugin_desc" jdbcType="VARCHAR" property="pluginDesc" />
+    <result column="state" jdbcType="INTEGER" property="state" />
+    <result column="sort" jdbcType="INTEGER" property="sort" />
+    <result column="class_name" jdbcType="VARCHAR" property="className" />
+    <result column="is_all" jdbcType="INTEGER" property="isAll" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, name, plugin_desc, state, sort, class_name, is_all
+  </sql>
+
+</mapper>

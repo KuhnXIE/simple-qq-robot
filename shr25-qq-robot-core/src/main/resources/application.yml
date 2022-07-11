@@ -1,0 +1,41 @@
+log:
+  path: /logs/qq
+project:
+  qq-robot:
+    name: 美美
+spring :
+  # 环境 dev|test|prod
+  profiles :
+    active : ${spring_profiles_active:dev}
+  #json 时间戳统一转换
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+
+#  autoconfigure:
+#    exclude:
+#      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+
+mybatis-plus:
+  #config-location: classpath:mybatis/mybatis-config.xml
+  mapper-locations: classpath*:mybatis/**/*Mapper.xml
+  type-aliases-package: com.shr25.robot.qq.model
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: true
+    lazy-loading-enabled: true
+    multiple-result-sets-enabled: true
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+    call-setters-on-nulls: true
+  global-config:
+    banner: false
+    db-config:
+      id-type: assign-id
+      table-underline: true
+
+#pagehelper分页插件
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql

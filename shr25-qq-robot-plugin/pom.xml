@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <artifactId>shr25-qq-robot</artifactId>
+    <groupId>com.shr25.robot</groupId>
+    <version>1.0.2</version>
+  </parent>
+
+  <artifactId>shr25-qq-robot-plugin</artifactId>
+  <packaging>pom</packaging>
+  <description>QQ机器人--插件</description>
+
+  <scm>
+    <url>https://gitee.com/shr25/qq-robot</url>
+    <connection>scm:git:https://gitee.com/shr25/qq-robot.git</connection>
+  </scm>
+
+  <modules>
+    <module>master-plugin</module>
+    <module>group-morning-plugin</module>
+  </modules>
+
+  <properties>
+    <maven.compiler.source>8</maven.compiler.source>
+    <maven.compiler.target>8</maven.compiler.target>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.shr25.robot</groupId>
+      <artifactId>shr25-qq-robot-core</artifactId>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.0.2</version>
+        <configuration>
+          <!--一下分别是排除源文件目录，资源文件， 资源文件目录 -->
+          <excludes>
+            <exclude>/com/shr25/robot/*Application.class</exclude>
+            <exclude>/*.yml</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+      <!--  外部jar放入lib -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-excludeScope-provided</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <excludeScope>provided</excludeScope>
+              <excludeGroupIds>junit,org.hamcrest</excludeGroupIds>
+              <outputDirectory>${project.build.directory}/lib</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

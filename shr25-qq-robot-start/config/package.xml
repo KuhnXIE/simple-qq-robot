@@ -1,0 +1,61 @@
+<!--具体含义参见官网 https://maven.apache.org/plugins/maven-assembly-plugin/assembly.html-->
+<assembly>
+
+  <id>release</id>
+  <!--maven打包类型，当前为zip和tar.gz-->
+  <formats>
+    <format>tar.gz</format>
+    <format>zip</format>
+  </formats>
+
+  <includeBaseDirectory>false</includeBaseDirectory>
+
+  <fileSets>
+    <fileSet>
+      <!--需要打包的文件所在路径-->
+      <directory>../cache/media</directory>
+      <!--打到压缩包的路径-->
+      <outputDirectory>./cache/media</outputDirectory>
+    </fileSet>
+    <fileSet>
+      <!--需要打包的文件所在路径-->
+      <directory>../db</directory>
+      <!--打到压缩包的路径-->
+      <outputDirectory>./db</outputDirectory>
+    </fileSet>
+    <fileSet>
+      <!--需要打包的文件所在路径-->
+      <directory>script</directory>
+      <!--需要打包的文件-->
+      <includes>
+        <include>*</include>
+      </includes>
+      <!--打到压缩包的路径-->
+      <outputDirectory>.</outputDirectory>
+      <fileMode>0755</fileMode>
+    </fileSet>
+    <fileSet>
+      <!--需要打包的文件所在路径-->
+      <directory>src/main/resources</directory>
+      <!--需要打包的文件-->
+      <includes>
+        <include>application-dev.yml</include>
+        <include>application-prod.yml</include>
+      </includes>
+      <!--打到压缩包的路径-->
+      <outputDirectory>.</outputDirectory>
+      <fileMode>0755</fileMode>
+    </fileSet>
+    <fileSet>
+      <directory>${project.basedir}/target</directory>
+      <outputDirectory>.</outputDirectory>
+      <includes>
+        <include>plugins/*</include>
+        <include>lib/*</include>
+        <include>shr25-qq-robot.jar</include>
+      </includes>
+      <fileMode>0755</fileMode>
+    </fileSet>
+  </fileSets>
+
+</assembly>
