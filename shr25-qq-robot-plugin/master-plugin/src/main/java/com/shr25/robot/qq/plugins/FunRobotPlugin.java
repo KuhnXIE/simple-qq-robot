@@ -44,10 +44,6 @@ public class FunRobotPlugin extends RobotPlugin {
         setSort(2);
     }
 
-
-
-
-
     public boolean executeMessage(QqMessage qqMessage) {
         AtomicBoolean executeNext = new AtomicBoolean(true);
         if (!(qqMessage.getEvent() instanceof MessageEvent)) {
