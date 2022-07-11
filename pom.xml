@@ -16,8 +16,8 @@
     <packaging>pom</packaging>
     <description>QQ机器人</description>
     <scm>
-        <url>https://gitee.com/shr25/qq-robot</url>
-        <connection>scm:git:https://gitee.com/shr25/qq-robot.git</connection>
+        <url>https://gitee.com/shr25/shr25-qq-robot</url>
+        <connection>scm:git:https://gitee.com/shr25/shr25-qq-robot.git</connection>
     </scm>
 
     <modules>
