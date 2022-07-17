@@ -84,7 +84,7 @@ public class QqMessage {
     this.replyMessages = ArrayListMultimap.create();
 
     if(event instanceof GroupMemberEvent) {
-      group = ((GroupMessageEvent) event).getGroup();
+      group = ((GroupMemberEvent) event).getGroup();
       contact = group;
       senderId = ((GroupMemberEvent) event).getMember().getId();
       groupId = contact.getId();
