@@ -12,7 +12,7 @@
 
     <groupId>com.shr25.robot</groupId>
     <artifactId>shr25-qq-robot</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <packaging>pom</packaging>
     <description>QQ机器人</description>
     <scm>
