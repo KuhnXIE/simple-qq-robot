@@ -19,7 +19,7 @@ spring :
 mybatis-plus:
   #config-location: classpath:mybatis/mybatis-config.xml
   mapper-locations: classpath*:mybatis/**/*Mapper.xml
-  type-aliases-package: com.shr25.robot.qq.model
+  #type-aliases-package: com.shr25.robot.qq.model
   configuration:
     map-underscore-to-camel-case: true
     cache-enabled: true
