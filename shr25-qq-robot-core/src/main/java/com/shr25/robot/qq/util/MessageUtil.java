@@ -34,58 +34,6 @@ public class MessageUtil {
         return new MessageChainBuilder();
     }
 
-    /**
-     * 分享卡片消息
-     * @param jurl       分享地址
-     * @param title     标题
-     * @param desc   描述
-     * @param coverUrl  封面
-     * @return
-     */
-    public static MessageChain buildShareCardMessage(String jurl, String title, String desc, String coverUrl, User user) {
-        //QQ浏览器标识
-        Integer appid = 100446242;
-        String  tag = "QQ浏览器";
-        String  sourceIcon = "http://p.qpic.cn/qqconnect_app_logo/PdibpV1sFDHf2jwsEP888ibhf9XK05hdWvQUxdQMk7uVE/0";
-
-        Long ctime = System.currentTimeMillis()/1000;
-        JSONObject appmsg = new JSONObject(true);
-        appmsg.putOnce("app", "com.tencent.structmsg");
-        JSONObject config = new JSONObject(true);
-        config.putOnce("ctime", ctime);
-        config.putOnce("forward", true);
-        config.putOnce("token", "");
-        config.putOnce("type", "normal");
-        appmsg.putOnce("config", config);
-        appmsg.putOnce("desc", "新闻");
-        JSONObject extra = new JSONObject(true);
-        extra.putOnce("app_type", 1);
-        extra.putOnce("appid", appid);
-        extra.putOnce("uin", user.getId());
-        appmsg.putOnce("extra", extra);
-        JSONObject meta = new JSONObject(true);
-        appmsg.putOnce("meta", meta);
-        JSONObject news = new JSONObject(true);
-        meta.putOnce("news", news);
-        news.putOnce("action", "");
-        news.putOnce("android_pkg_name", "");
-        news.putOnce("app_type", 1);
-        news.putOnce("appid", appid);
-        news.putOnce("ctime", ctime);
-        news.putOnce("desc", desc);
-        news.putOnce("jumpUrl", jurl);
-        news.putOnce("preview", coverUrl);
-        news.putOnce("source_icon", sourceIcon);
-        news.putOnce("source_url", "");
-        news.putOnce("tag", tag);
-        news.putOnce("title", title);
-        news.putOnce("uin", user.getId());
-        appmsg.putOnce("prompt", "[分享]"+title);
-        appmsg.putOnce("view", "news");
-        appmsg.putOnce("ver", "0.0.0.1");
-        return new LightApp(appmsg.toString()).plus("");
-    }
-
 
     /**
      * 构建图片消息
