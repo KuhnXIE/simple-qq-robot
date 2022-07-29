@@ -102,9 +102,9 @@ public class FunRobotPlugin extends RobotPlugin {
      */
     private String tiangou(){
         List<String> list = Arrays.asList(
-          "https://cloud.qqshabi.cn/api/tiangou/api.php"
-//          ,"https://api.oick.cn/dog/api.php"
-//          ,"https://api.ixiaowai.cn/tgrj/index.php"
+//          "https://cloud.qqshabi.cn/api/tiangou/api.php",
+          "https://api.oick.cn/dog/api.php"
+          ,"https://api.ixiaowai.cn/tgrj/index.php"
         );
         String dogUrl = RandomUtil.randomEle(list);
         return HttpUtil.get(dogUrl);
