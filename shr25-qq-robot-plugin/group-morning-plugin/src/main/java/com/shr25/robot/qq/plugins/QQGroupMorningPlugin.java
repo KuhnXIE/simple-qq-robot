@@ -160,7 +160,7 @@ public class QQGroupMorningPlugin extends RobotPlugin {
       MessageUtil.sendGroupMessage(groupId, builder.build());
 
       if (qqGroupMorning.getIsSignIn() == 1) {
-        MessageUtil.sendGroupMessage(groupId, "签到");
+        MessageUtil.sendGroupMessage(groupId, "早");
       }
 
       //如果已经过时间了，则加一天
