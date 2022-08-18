@@ -20,11 +20,6 @@
     <connection>scm:git:https://gitee.com/shr25/shr25-qq-robot.git</connection>
   </scm>
 
-  <modules>
-    <module>master-plugin</module>
-    <module>group-morning-plugin</module>
-  </modules>
-
   <properties>
     <maven.compiler.source>8</maven.compiler.source>
     <maven.compiler.target>8</maven.compiler.target>
