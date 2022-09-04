@@ -186,7 +186,7 @@ public abstract class RobotPlugin {
     }
 
     /**
-     * 回复群消息
+     * 回复陌生人消息
      * @param qqMessage
      */
     public boolean executeStrangerMessage(QqMessage qqMessage){
@@ -202,7 +202,7 @@ public abstract class RobotPlugin {
     }
 
     /**
-     * 回复群消息
+     * 回复群临时消息
      * @param qqMessage
      */
     public boolean executeGroupTempMessage(QqMessage qqMessage){
@@ -210,7 +210,7 @@ public abstract class RobotPlugin {
     }
 
     /**
-     * 回复好友消息
+     * 回复群消息
      * @param qqMessage
      */
     public boolean executeGroupMessage(QqMessage qqMessage){
@@ -218,7 +218,7 @@ public abstract class RobotPlugin {
     }
 
     /**
-     * 回复群消息
+     * 回复群事件消息
      * @param qqMessage
      */
     public boolean executeGroupMember(QqMessage qqMessage){
