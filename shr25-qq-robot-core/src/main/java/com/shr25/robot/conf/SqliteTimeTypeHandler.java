@@ -11,7 +11,7 @@ import java.sql.SQLException;
 import java.util.Date;
 
 /**
- * @description: TODO
+ * @description: sqlite时间类型转换器
  * @author:: huobing
  * @date: 2022-7-9 23:34
  **/

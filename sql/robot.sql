@@ -14,6 +14,12 @@
  Date: 23/06/2022 11:25:57
 */
 
+CREATE DATABASE IF NOT EXISTS shrzhr
+    DEFAULT CHARACTER SET utf8mb4
+    DEFAULT COLLATE utf8mb4_general_ci;
+
+USE shrzhr;
+
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------
@@ -25,7 +31,7 @@ CREATE TABLE `r_msg_content`  (
   `keyword` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '群关键字，用于筛选',
   `content` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '欢迎语',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  PRIMARY KEY (`id`) USING BTREE
+  PRIMARY KEY (`id`) USING BTREE 
 ) ENGINE = InnoDB AUTO_INCREMENT = 1394 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '关键字返回内容' ROW_FORMAT = Dynamic;
 -- ----------------------------
 -- Table structure for r_qq_group_info
@@ -111,13 +117,11 @@ CREATE TABLE `r_qq_plugin`  (
 -- ----------------------------
 -- Records of r_qq_plugin
 -- ----------------------------
-INSERT INTO `r_qq_plugin` VALUES (1, '娱乐插件', '娱乐插件', 1, 2, 'com.shr25.robot.qq.plugins.FunRobotPlugin', 1);
-INSERT INTO `r_qq_plugin` VALUES (2, '群管理插件', '群管理插件', 1, 1000, 'com.shr25.robot.qq.plugins.GroupManageRobotPlugin', 1);
-INSERT INTO `r_qq_plugin` VALUES (3, '媒体插件', '媒体插件', 1, 10000, 'com.shr25.robot.qq.plugins.MediaRobotPlugin', 0);
-INSERT INTO `r_qq_plugin` VALUES (4, '树人分享插件', '查找树人分享的信息', 1, 1, 'com.shr25.robot.qq.plugins.TaskShr25Plugin', 1);
-INSERT INTO `r_qq_plugin` VALUES (5, '传声通插件', '多个群，同步消息', 1, 1001, 'com.shr25.robot.qq.plugins.MicrophoneRobotPlugin', 1);
-INSERT INTO `r_qq_plugin` VALUES (6, '青云客ai机器人', '青云客ai机器人', 1, 9999999, 'com.shr25.robot.qq.plugins.AiRobotPlugin', 1);
-
+INSERT INTO `r_qq_plugin` VALUES (1538814592587157506, '娱乐插件', '娱乐插件', 1, 2, 'com.shr25.robot.qq.plugins.FunRobotPlugin', 1);
+INSERT INTO `r_qq_plugin` VALUES (1538814632760201217, '群管理插件', '群管理插件', 1, 1000, 'com.shr25.robot.qq.plugins.GroupManageRobotPlugin', 1);
+INSERT INTO `r_qq_plugin` VALUES (1538816648437846018, '树人分享插件', '查找树人分享的信息', 1, 1, 'com.shr25.robot.qq.plugins.TaskShr25Plugin', 1);
+INSERT INTO `r_qq_plugin` VALUES (1538816648437846019, '传声通插件', '多个群，同步消息', 1, 1001, 'com.shr25.robot.qq.plugins.MicrophoneRobotPlugin', 1);
+INSERT INTO `r_qq_plugin` VALUES (1541075488311181314, '青云客ai机器人', '青云客ai机器人', 1, 9999999, 'com.shr25.robot.qq.plugins.AiRobotPlugin', 1);
 
 -- ----------------------------
 -- Table structure for t_qq_info

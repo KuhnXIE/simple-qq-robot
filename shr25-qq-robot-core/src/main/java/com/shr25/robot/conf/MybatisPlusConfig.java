@@ -38,7 +38,7 @@ import java.util.Map;
  * @date 2019-12-06 21:11
  */
 @Configuration
-@MapperScan(basePackages = {"com.shr25.robot.qq.mapper"})
+@MapperScan(basePackages = {"**.mapper"})
 public class MybatisPlusConfig {
 
     @Autowired
@@ -140,6 +140,6 @@ public class MybatisPlusConfig {
     @Value("${mybatis-plus.mapper-locations}")
     private String locationPattern;
 
-    @Value("${mybatis-plus.type-aliases-package}")
+    @Value("${mybatis-plus.type-aliases-package:}")
     private String typeAliasesPackage;
 }

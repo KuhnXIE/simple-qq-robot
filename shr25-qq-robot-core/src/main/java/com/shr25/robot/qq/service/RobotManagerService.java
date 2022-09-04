@@ -139,12 +139,12 @@ public class RobotManagerService {
                         }
                         break;
                     case "#插件列表":
-                        if (qqMessage.isGroupMessage() && qqMessage.isCanOperatorGroup()) {
-                            this.addPluginsListMessage(qqMessage);
-                        }
+                        this.addPluginsListMessage(qqMessage);
                         break;
                     case "#机器人状态":
-                        this.addRobotStatusMessage(qqMessage);
+                        if (qqMessage.isManager()) {
+                            this.addRobotStatusMessage(qqMessage);
+                        }
                         break;
                     default:
                         // root管理员才有的功能
@@ -302,12 +302,12 @@ public class RobotManagerService {
             strMsg.append(n+ "、#管理    所有的管理命令\n");
         }
 
-        if(qqConfig.isSimplifyCommand()){
-            for (QqPluginVo item : getPlugins(qqMessage)) {
-                n++;
-                strMsg.append(n + "、#" + item.getRobotPlugin().getName() + '\n');
-            }
-        }
+//        if(qqConfig.isSimplifyCommand()){
+//            for (QqPluginVo item : getPlugins(qqMessage)) {
+//                n++;
+//                strMsg.append(n + "、#" + item.getRobotPlugin().getName() + '\n');
+//            }
+//        }
         Set<String> allCommands = new TreeSet<>();
         getPlugins(qqMessage).forEach(item -> {
             if(item.isEnabled() && item.getRobotPlugin().isEnabled()){

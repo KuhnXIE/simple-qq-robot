@@ -1,13 +1,12 @@
 package com.shr25.robot.qq.util;
 
 import cn.hutool.core.util.RandomUtil;
+import cn.hutool.json.JSONObject;
+import kotlinx.serialization.json.JsonObject;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.*;
-import net.mamoe.mirai.message.data.Image;
-import net.mamoe.mirai.message.data.Message;
-import net.mamoe.mirai.message.data.MessageChainBuilder;
-import net.mamoe.mirai.message.data.PlainText;
+import net.mamoe.mirai.message.data.*;
 import net.mamoe.mirai.utils.ExternalResource;
 
 import java.io.File;
@@ -34,6 +33,7 @@ public class MessageUtil {
     public static MessageChainBuilder createBuilder() {
         return new MessageChainBuilder();
     }
+
 
     /**
      * 构建图片消息
