@@ -23,9 +23,14 @@ public class DeviceUtil {
      * @return
      */
     public String getDeviceInfoJson(Long qq) {
-        return new JSONObject(new DeviceInfo()).toString();
+        return new JSONObject(new DeviceInfo(qq)).toString();
     }
 
+    /**
+     * 使用QQ本地设备信息
+     * @param qq
+     * @return
+     */
     public String getDeviceInfoJson1(Long qq) {
         // 设备信息文件
         File file = new File("deviceInfo-".concat(qq.toString()).concat(".json"));

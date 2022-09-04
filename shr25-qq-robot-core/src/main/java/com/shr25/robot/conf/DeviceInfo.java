@@ -47,11 +47,16 @@ public class DeviceInfo implements Serializable {
 
     private byte[] wifiSSID = "<unknown ssid>".getBytes();
 
-    private byte[] imsiMd5 = SecureUtil.md5().digest("123456789012345");
-
-    private String imei = "123456789012345";
-
     private byte[] apn = "wifi".getBytes();
+
+    private byte[] imsiMd5 = null;
+
+    private String imei = null;
+
+    public DeviceInfo(Long qq) {
+        this.imei = qq + "";
+        this.imsiMd5 = SecureUtil.md5().digest(imei);
+    }
 
     @Data
     @EqualsAndHashCode(callSuper = false)
