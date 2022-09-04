@@ -1,4 +1,4 @@
-# qq-robot
+# shr25-qq-robot
 
 #### 介绍
 qq机器人，使用基础框架：https://github.com/mamoe/mirai  
@@ -8,12 +8,12 @@ qq机器人，使用基础框架：https://github.com/mamoe/mirai
 想要 管理后台"脚手架" 的可以看另一个项目：[https://gitee.com/shr25/shr25](https://gitee.com/shr25/shr25)
 
 采用插件式处理消息，可无限扩展插件，需要jdk1.8以上
-采用的mysql数据库存储数据。  
+默认采用的sqlite数据库存储数据,可以切换其他数据源,如：mysql。 
 用户和群隔离开，每个群单独的配置。  
 系统管理相关命令都在【系统管理插件】里，部分命令必须配置了root管理员才能使用，对应配置：project.qq-robot.root-manage-qq（例如开关群管理权限）
 #### 软件架构
 ```
-qq-robot
+shr25-qq-robot
 ├── shr25-qq-robot-core -- 核心公共部分
      └── com.shr25.robot.StartUpApplication -- 调试启动类
 ├── shr25-qq-robot-plugin -- 自定义插件项目
@@ -38,6 +38,9 @@ idea建议使用2022.X，低版本 会报红，找不到类（虽然可以正常
 4. 启动类：StartUpApplication 直接启动核心
 5. 启动类：StartApplication 目前没有加载插件的情况下和StartUpApplication效果一致的
 6. 启动类：DemoApplication 单独开发插件时使用，启动的插件为，核心插件和当前项目开发插件
+
+更多使用说明见wiki,点击[shr25-qq-robot](https://gitee.com/shr25/shr25-qq-robot/wikis/%E5%BF%AB%E9%80%9F%E4%BD%BF%E7%94%A8)进入wiki页面。
+![输入图片说明](https://foruda.gitee.com/images/1662267199054688012/9374aed8_1911860.png "屏幕截图")
 
 #### 使用说明
 1. 所有内置插件在com.shr25.robot.qq.plugins包里
@@ -69,10 +72,3 @@ mirai 采用 AGPLv3 协议开源。为了整个社区的良性发展，我们强
 间接接触（包括但不限于使用 Http API 或 跨进程技术）到 mirai 的软件使用 AGPLv3 开源
 不鼓励，不支持一切商业使用
 鉴于项目的特殊性，开发团队可能在任何时间停止更新或删除项目。
-
-#### 参与贡献
-
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
