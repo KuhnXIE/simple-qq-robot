@@ -14,7 +14,7 @@ public class WebLoginSolver extends LoginSolver {
     /** bot的号码 */
     Long qq;
 
-    /** 登录需要处理的事件类型 0.登录成功  1.图片验证码  2. 滑动验证码 3.理不安全设备验证*/
+    /** 登录需要处理的事件类型 0.登录成功  1.图片验证码  2. 滑动验证码 3.理不安全设备验证 9.异常*/
     Integer type;
 
     /** 需要验证的机器人 */
@@ -143,7 +143,7 @@ public class WebLoginSolver extends LoginSolver {
         log.info("[SliderCaptcha] Captcha link: {}", url);
         Long currTime = System.currentTimeMillis();
         //最大等待检测1分钟，没有值返回
-        for (;System.currentTimeMillis()-currTime > 60000;) {
+        for (;System.currentTimeMillis()-currTime <= 120000;) {
             if(ticket != null){
                 break;
             }
@@ -168,6 +168,13 @@ public class WebLoginSolver extends LoginSolver {
         this.url = url;
         log.info("[UnsafeLogin] 当前登录环境不安全，服务器要求账户认证。请在 QQ 浏览器打开 {} 并完成验证后输入任意字符。", url);
         log.info("[UnsafeLogin] Account verification required by the server. Please open {} in QQ browser and complete challenge, then type anything here to submit.", url);
+        Long currTime = System.currentTimeMillis();
+        //最大等待检测1分钟，没有值返回
+        for (;System.currentTimeMillis()-currTime <= 60000;) {
+            if(bot.isOnline()){
+                break;
+            }
+        }
         return null;
     }
 }

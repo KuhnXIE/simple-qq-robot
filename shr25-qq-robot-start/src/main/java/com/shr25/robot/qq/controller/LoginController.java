@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.network.WrongPasswordException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -34,8 +34,11 @@ public class LoginController {
      * @return
      */
     @ResponseBody
-    @GetMapping(value = "/login")
+    @PostMapping(value = "/login")
     public Object login(QqLogin qqLogin) {
+        QqLogin data = new QqLogin();
+        data.setQq(qqLogin.getQq());
+
         Map rs = new HashMap();
         WebLoginSolver old = cache.get(qqLogin.getQq());
         if (old == null) {
@@ -65,11 +68,14 @@ public class LoginController {
                 qqRunThread.start();
 
                 for (; (rs.get("code") == null || rs.get("msg") == null) && webLoginSolver.getType() == null; ) {
-                    System.out.println("===========================================================================");
-                    System.out.println("code = " + rs.get("code"));
-                    System.out.println("msg = " + rs.get("msg"));
-                    System.out.println("type = " + webLoginSolver.getType());
-                    System.out.println("===========================================================================");
+                    //等待登录结果
+                    if(webLoginSolver.getType() != null) {
+                        System.out.println("===========================================================================");
+                        System.out.println("code = " + rs.get("code"));
+                        System.out.println("msg = " + rs.get("msg"));
+                        System.out.println("type = " + webLoginSolver.getType());
+                        System.out.println("===========================================================================");
+                    }
                 }
 
                 log.info("Login---账号:{} 密码: {}]", qqLogin.getQq(), qqLogin.getPassword());
@@ -77,11 +83,11 @@ public class LoginController {
                 if (rs.get("code") == null) {
                     if (webLoginSolver.getType() != null) {
                         cache.put(qqLogin.getQq(), webLoginSolver);
-                        qqLogin.setType(webLoginSolver.getType());
-                        qqLogin.setImgData(webLoginSolver.getImgData());
-                        qqLogin.setUrl(webLoginSolver.getUrl());
+                        data.setType(webLoginSolver.getType());
+                        data.setImgData(webLoginSolver.getImgData());
+                        data.setUrl(webLoginSolver.getUrl());
                         rs.put("code", 403);
-                        rs.put("data", qqLogin);
+                        rs.put("data", data);
                     } else {
                         rs.put("code", 200);
                         rs.put("msg", "登录成功");
@@ -97,10 +103,15 @@ public class LoginController {
             } else if (old.getType() == 2) {
                 old.setTicket(qqLogin.getTicket());
             }
-            for (; old.getType() != 0 && old.getType() != 9; ) {
-            }
 
-            if (old.getType() == 9) {
+            for (; old.getType() != 0 && old.getType() != 3 && old.getType() != 9; ) {
+            }
+            if (old.getType() == 3) {
+                data.setType(old.getType());
+                data.setUrl(old.getUrl());
+                rs.put("code", 403);
+                rs.put("data", data);
+            }else if (old.getType() == 9) {
                 rs.put("code", 500);
                 rs.put("data", "请重新登录");
             } else {
