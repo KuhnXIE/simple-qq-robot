@@ -23,7 +23,6 @@
     <modules>
         <module>shr25-qq-robot-core</module>
         <module>shr25-qq-robot-plugin</module>
-        <module>shr25-qq-robot-start</module>
     </modules>
 
 
