@@ -2,12 +2,15 @@ package com.shr25.robot.qq.util;
 
 import cn.hutool.core.io.file.FileReader;
 import cn.hutool.core.io.file.FileWriter;
+import cn.hutool.crypto.SecureUtil;
 import cn.hutool.json.JSONObject;
-import com.shr25.robot.conf.DeviceInfo;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
+import net.mamoe.mirai.utils.DeviceInfo;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.UUID;
 
 /**
  * 机器人终端设备工具类
@@ -18,16 +21,6 @@ import java.io.File;
 @Slf4j
 @UtilityClass
 public class DeviceUtil {
-
-    /**
-     * 获取机器人设备信息的JSON字符串
-     *
-     * @return
-     */
-    private String getDeviceInfoJson(Long qq) {
-        return new JSONObject(new DeviceInfo(qq)).toString();
-    }
-
     /**
      * 使用QQ本地设备信息
      * @param qq
@@ -42,10 +35,62 @@ public class DeviceUtil {
             deviceInfoJson = fileReader.readString();
         } else {
             deviceInfoJson = getDeviceInfoJson(qq);
-            log.info("重新生成设备信息:{}",deviceInfoJson);
+            log.info("重新生成设备信息:{}", deviceInfoJson);
             FileWriter fileWriter = new FileWriter(file);
             fileWriter.write(deviceInfoJson);
         }
         return deviceInfoJson;
     }
+
+        /**
+         * 获取机器人设备信息的JSON字符串
+         *
+         * @return
+         */
+    private String getDeviceInfoJson(Long qq) {
+        String imei = "86"+(qq+""+qq).substring(0, 12);
+        imei = imei + luhn(imei);
+        DeviceInfo deviceInfo = new DeviceInfo(
+                ("MIRAI."+qq.toString().substring(0,6)+".001").getBytes(),//display
+                "mirai".getBytes(), //product
+                "mirai".getBytes(), //device
+                "mirai".getBytes(), //board
+                "mamoe".getBytes(), //brand
+                "mirai".getBytes(), //model
+                "unknown".getBytes(), //bootloader
+                ("mamoe/mirai/mirai:10/MIRAI.200122.001/"+qq.toString().substring(0,7)+":user/release-keys").getBytes(), //fingerprint
+                SecureUtil.md5(imei).toUpperCase().getBytes(), //bootId
+                ("Linux version 3.0.31-"+qq.toString().substring(0,8)+ "(android-build@xxx.xxx.xxx.xxx.com)").getBytes(), //procVersion
+                 new byte[0], //baseBand
+                 new DeviceInfo.Version(), //version
+                "T-Mobile".getBytes(), //simInfo
+                "android".getBytes(), // osType
+                "02:00:00:00:00:00".getBytes(), //macAddress
+                "02:00:00:00:00:00".getBytes(), //wifiBSSID
+                 "<unknown ssid>".getBytes(), //wifiSSID
+                SecureUtil.md5().digest(imei), //  imsiMd5
+                imei, //imei
+                "wifi".getBytes() // apn
+        );
+        return new JSONObject(deviceInfo).toString();
+    }
+
+    //计算imei校验码
+    private Integer luhn(String imei){
+        boolean odd = false;
+        Integer sum = 0;
+        for (int i = 0; i < imei.length(); i++) {
+            Integer temp = Integer.valueOf(imei.substring(i, i+1));
+            odd = !odd;
+            if (odd) {
+                sum +=  temp;
+            } else {
+                Integer s = temp * 2;
+                s = s % 10 + s / 10;
+                sum += s;
+            }
+        }
+
+        return (10 - sum % 10) % 10;
+    };
 }

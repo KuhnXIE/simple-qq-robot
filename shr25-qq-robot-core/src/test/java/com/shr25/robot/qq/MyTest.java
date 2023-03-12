@@ -1,6 +1,5 @@
 package com.shr25.robot.qq;
 
-import com.shr25.robot.protocol.FixProtocolVersion;
 import com.shr25.robot.qq.event.EventListeningHandle;
 import com.shr25.robot.qq.util.DeviceUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -8,8 +7,6 @@ import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.BotFactory;
 import net.mamoe.mirai.utils.BotConfiguration;
 import org.junit.Test;
-
-import java.util.Map;
 
 /**
  * @author huobing
@@ -25,20 +22,8 @@ public class MyTest {
     public void DeviceInfo() {
         System.out.println();
     }
-
-    // 升级协议版本
-    public static void update() {
-        FixProtocolVersion.update();
-    }
-    // 获取协议版本信息 你可以用这个来检查update是否正常工作
-    public static Map<BotConfiguration.MiraiProtocol, String> info() {
-        return FixProtocolVersion.info();
-    }
     @Test
     public void RobotTest() {
-        update();
-        Map<BotConfiguration.MiraiProtocol, String> data = info();
-
         final Bot bot = BotFactory.INSTANCE.newBot(qq, password, new BotConfiguration() {
             {
                 /**

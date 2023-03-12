@@ -52,7 +52,7 @@ public class RobotService {
             {
                 this.setCacheDir(new File(qqConfig.getWorkspace() + File.separator + "qq" + File.separator + qq));
                 // 加载设备信息
-                //this.loadDeviceInfoJson(DeviceUtil.getDeviceInfoJson1(qq));
+                this.loadDeviceInfoJson(DeviceUtil.getDeviceInfoJson1(qq));
                 // 使用安卓平板协议
                 this.setProtocol(MiraiProtocol.MACOS);
                 // 工作空间目录，为根目录加登录的qq
