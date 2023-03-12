@@ -12,7 +12,7 @@
 
     <groupId>com.shr25.robot</groupId>
     <artifactId>shr25-qq-robot</artifactId>
-    <version>1.0.9</version>
+    <version>1.0.10</version>
     <packaging>pom</packaging>
     <description>QQ机器人</description>
     <scm>
@@ -23,7 +23,6 @@
     <modules>
         <module>shr25-qq-robot-core</module>
         <module>shr25-qq-robot-plugin</module>
-        <module>shr25-qq-robot-protocol-version</module>
     </modules>
 
 
@@ -142,7 +141,7 @@
             <dependency>
                 <groupId>com.shr25.robot</groupId>
                 <artifactId>shr25-qq-robot-core</artifactId>
-                <version>1.0.9</version>
+                <version>1.0.10</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
