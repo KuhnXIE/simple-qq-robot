@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.shr25.robot</groupId>
         <artifactId>shr25-qq-robot</artifactId>
-        <version>1.0.8</version>
+        <version>1.0.9</version>
     </parent>
 
     <artifactId>shr25-qq-robot-core</artifactId>
@@ -86,7 +86,7 @@
         <dependency>
             <groupId>com.shr25.robot</groupId>
             <artifactId>shr25-qq-robot-protocol-version</artifactId>
-            <version>1.0.8</version>
+            <version>1.0.9</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
