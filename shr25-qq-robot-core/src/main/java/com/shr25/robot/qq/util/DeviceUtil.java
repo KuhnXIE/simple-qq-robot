@@ -5,6 +5,7 @@ import cn.hutool.core.io.file.FileWriter;
 import cn.hutool.json.JSONObject;
 import com.shr25.robot.conf.DeviceInfo;
 import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 
@@ -14,6 +15,7 @@ import java.io.File;
  * @author huobing
  * @since 2020/11/4 6:11 下午
  */
+@Slf4j
 @UtilityClass
 public class DeviceUtil {
 
@@ -22,7 +24,7 @@ public class DeviceUtil {
      *
      * @return
      */
-    public String getDeviceInfoJson(Long qq) {
+    private String getDeviceInfoJson(Long qq) {
         return new JSONObject(new DeviceInfo(qq)).toString();
     }
 
@@ -39,7 +41,8 @@ public class DeviceUtil {
             FileReader fileReader = new FileReader(file);
             deviceInfoJson = fileReader.readString();
         } else {
-            deviceInfoJson = new JSONObject().toString();
+            deviceInfoJson = getDeviceInfoJson(qq);
+            log.info("重新生成设备信息:{}",deviceInfoJson);
             FileWriter fileWriter = new FileWriter(file);
             fileWriter.write(deviceInfoJson);
         }

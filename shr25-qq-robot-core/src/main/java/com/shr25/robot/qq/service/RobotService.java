@@ -50,12 +50,12 @@ public class RobotService {
     public void start(Long qq, String password, LoginSolver loginSolver) {
         final Bot bot = BotFactory.INSTANCE.newBot(qq, password, new BotConfiguration() {
             {
-                // 加载设备信息
-                this.loadDeviceInfoJson(DeviceUtil.getDeviceInfoJson(qq));
-                // 使用安卓平板协议
-                this.setProtocol(MiraiProtocol.ANDROID_PAD);
-                // 工作空间目录，为根目录加登录的qq
                 this.setCacheDir(new File(qqConfig.getWorkspace() + File.separator + "qq" + File.separator + qq));
+                // 加载设备信息
+                this.loadDeviceInfoJson(DeviceUtil.getDeviceInfoJson1(qq));
+                // 使用安卓平板协议
+                this.setProtocol(MiraiProtocol.MACOS);
+                // 工作空间目录，为根目录加登录的qq
                 // 开启所有列表缓存
                 // this.enableContactCache();
                 // 自定义缓存
