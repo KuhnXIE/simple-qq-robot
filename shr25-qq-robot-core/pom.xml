@@ -108,7 +108,7 @@
         <dependency>
             <groupId>com.shr25.robot.plugin</groupId>
             <artifactId>protocol-version-plugin</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.2</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
