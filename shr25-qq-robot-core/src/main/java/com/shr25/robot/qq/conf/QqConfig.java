@@ -24,6 +24,9 @@ public class QqConfig {
     /** 机器人密码 */
     private String password;
 
+    /** 使用协议 ANDROID_PHONE,  ANDROID_PAD, ANDROID_WATCH, IPAD, MACOS */
+    private String protocol;
+
     /** 机器人的工作空间 */
     private String workspace;
 

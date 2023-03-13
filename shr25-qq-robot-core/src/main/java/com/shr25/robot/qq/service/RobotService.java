@@ -8,6 +8,7 @@ import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.BotFactory;
 import net.mamoe.mirai.utils.BotConfiguration;
 import net.mamoe.mirai.utils.LoginSolver;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,11 +35,21 @@ public class RobotService {
     public void init(){
         // 启动机器人
         Thread qqRunThread = new Thread(() -> {
-            start(qqConfig.getQq(), qqConfig.getPassword(), null);
+            start(qqConfig.getQq(), qqConfig.getPassword(), qqConfig.getProtocol());
         });
         qqRunThread.setDaemon(true);
         qqRunThread.setName("QQ机器人服务运行线程:" + qqConfig.getQq());
         qqRunThread.start();
+    }
+    public void start(Long qq, String password) {
+        start(qq, password, null, null);
+    }
+    public void start(Long qq, String password, String protocol) {
+        start(qq, password, protocol, null);
+    }
+
+    public void start(Long qq, String password, LoginSolver loginSolver) {
+        start(qq, password, null, loginSolver);
     }
 
     /**
@@ -47,14 +58,17 @@ public class RobotService {
      * @param qq       qq号
      * @param password qq号对应明文密码
      */
-    public void start(Long qq, String password, LoginSolver loginSolver) {
+    public void start(Long qq, String password, String protocol, LoginSolver loginSolver) {
         final Bot bot = BotFactory.INSTANCE.newBot(qq, password, new BotConfiguration() {
             {
                 this.setCacheDir(new File(qqConfig.getWorkspace() + File.separator + "qq" + File.separator + qq));
                 // 加载设备信息
                 this.loadDeviceInfoJson(DeviceUtil.getDeviceInfoJson1(qq));
-                // 使用安卓平板协议
-                this.setProtocol(MiraiProtocol.MACOS);
+                // 设置协议
+                if(StringUtils.isNoneBlank(protocol)){
+                    this.setProtocol(MiraiProtocol.valueOf(protocol.toUpperCase()));
+                }
+
                 // 工作空间目录，为根目录加登录的qq
                 // 开启所有列表缓存
                 // this.enableContactCache();
