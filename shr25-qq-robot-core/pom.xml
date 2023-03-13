@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.shr25.robot</groupId>
         <artifactId>shr25-qq-robot</artifactId>
-        <version>1.1.0</version>
+        <version>1.1.1</version>
     </parent>
 
     <artifactId>shr25-qq-robot-core</artifactId>
@@ -109,7 +109,7 @@
             <groupId>com.shr25.robot.plugin</groupId>
             <artifactId>protocol-version-plugin</artifactId>
             <version>1.0.1</version>
-            <scope>runtime</scope>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
