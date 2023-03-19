@@ -33,13 +33,15 @@ public class RobotService {
 
     @PostConstruct
     public void init(){
-        // 启动机器人
-        Thread qqRunThread = new Thread(() -> {
-            start(qqConfig.getQq(), qqConfig.getPassword(), qqConfig.getProtocol());
-        });
-        qqRunThread.setDaemon(true);
-        qqRunThread.setName("QQ机器人服务运行线程:" + qqConfig.getQq());
-        qqRunThread.start();
+        if(qqConfig.isAutoLogin()) {
+            // 启动机器人
+            Thread qqRunThread = new Thread(() -> {
+                start(qqConfig.getQq(), qqConfig.getPassword(), qqConfig.getProtocol());
+            });
+            qqRunThread.setDaemon(true);
+            qqRunThread.setName("QQ机器人服务运行线程:" + qqConfig.getQq());
+            qqRunThread.start();
+        }
     }
     public void start(Long qq, String password) {
         start(qq, password, null, null);

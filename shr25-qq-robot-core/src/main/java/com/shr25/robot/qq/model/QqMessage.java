@@ -191,7 +191,7 @@ public class QqMessage {
           if (((At) singleMessage).getTarget() == getMessageEvent().getBot().getId()) {
             at = true;
           }
-        }else {
+        }else if(singleMessage instanceof PlainText){
           strMsg.append(singleMessage.contentToString().trim());
         }
       });

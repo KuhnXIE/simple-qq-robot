@@ -47,10 +47,10 @@ public abstract class RobotPlugin {
     private Map<Long, DelayTask> delayTaskCache;
 
     /** 主要命令 */
-    private Set<String> masterCommands = new TreeSet<>();
+    private Set<String> masterCommands = new LinkedHashSet<>();
 
     /** 命令集 */
-    private Set<String> commands = new TreeSet<>();
+    private Set<String> commands = new LinkedHashSet<>();
 
     public RobotPlugin() {
         this.log = LoggerFactory.getLogger(getClass());

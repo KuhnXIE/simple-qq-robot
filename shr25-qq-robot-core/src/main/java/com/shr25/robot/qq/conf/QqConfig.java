@@ -24,6 +24,9 @@ public class QqConfig {
     /** 机器人密码 */
     private String password;
 
+    /** 是否自动登录 */
+    private boolean autoLogin = true;
+
     /** 使用协议 ANDROID_PHONE,  ANDROID_PAD, ANDROID_WATCH, IPAD, MACOS */
     private String protocol;
 

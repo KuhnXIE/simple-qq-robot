@@ -82,7 +82,7 @@ public class GroupManageRobotPlugin extends RobotPlugin {
                         enabledWelcomeMsg(qqMessage);
                         break;
                     case "关闭迎新信息":
-                        enabledWelcomeMsg(qqMessage);
+                        notEnabledWelcomeMsg(qqMessage);
                         break;
                     default:
                         if(qqMessage.getContent().startsWith("#设置迎新信息")){
