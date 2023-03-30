@@ -7,6 +7,8 @@ project:
   qq-robot:
     qq: 机器人QQ号
     password: 机器人密码
+    #协议 ANDROID_PHONE,  ANDROID_PAD, ANDROID_WATCH, IPAD, MACOS; 默认 MACOS
+    protocol: MACOS
     #机器人工作空间
     workspace: cache
     #是否开启日志
