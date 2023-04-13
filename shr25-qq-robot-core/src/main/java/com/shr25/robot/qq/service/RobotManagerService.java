@@ -99,11 +99,6 @@ public class RobotManagerService {
         if(qqMessage.getMessageType() != 0){
             if(!StringUtils.isBlank(qqMessage.getContent())) {
                 switch (qqMessage.getContent()) {
-                    case "help":
-                    case "简介":
-                    case "帮助":
-                        qqMessage.putReplyMessage(getCommandsStr(qqMessage));
-                        break;
                     case "#管理":
                         if (qqMessage.isManager()) {
                             qqMessage.putReplyMessage(getDesc());

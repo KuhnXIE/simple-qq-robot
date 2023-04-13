@@ -1,8 +1,6 @@
 log:
   path: /logs/qq
-project:
-  qq-robot:
-    name: 美美
+
 spring :
   # 环境 dev|test|prod
   profiles :

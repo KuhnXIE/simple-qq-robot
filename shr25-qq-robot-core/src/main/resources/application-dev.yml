@@ -5,6 +5,7 @@
 #项目单独配置
 project:
   qq-robot:
+    name: 树人
     qq: 机器人QQ号
     password: 机器人密码
     #协议 ANDROID_PHONE,  ANDROID_PAD, ANDROID_WATCH, IPAD, MACOS; 默认 MACOS
