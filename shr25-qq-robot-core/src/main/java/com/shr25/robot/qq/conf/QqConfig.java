@@ -27,6 +27,9 @@ public class QqConfig {
     /** 是否自动登录 */
     private boolean autoLogin = true;
 
+    /** 是否扫码登录 */
+    private boolean loginByQr = false;
+
     /** 使用协议 ANDROID_PHONE,  ANDROID_PAD, ANDROID_WATCH, IPAD, MACOS */
     private String protocol;
 

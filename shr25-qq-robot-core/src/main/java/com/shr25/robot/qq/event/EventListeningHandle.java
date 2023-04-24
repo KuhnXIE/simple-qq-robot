@@ -1,6 +1,5 @@
 package com.shr25.robot.qq.event;
 
-import com.shr25.robot.qq.enums.RobotEventEnum;
 import com.shr25.robot.qq.service.RobotManagerService;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.event.EventHandler;

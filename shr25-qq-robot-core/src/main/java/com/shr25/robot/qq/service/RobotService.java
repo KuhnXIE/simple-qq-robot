@@ -6,6 +6,7 @@ import com.shr25.robot.qq.util.DeviceUtil;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.BotFactory;
+import net.mamoe.mirai.auth.BotAuthorization;
 import net.mamoe.mirai.utils.BotConfiguration;
 import net.mamoe.mirai.utils.LoginSolver;
 import org.apache.commons.lang3.StringUtils;
@@ -61,7 +62,7 @@ public class RobotService {
      * @param password qq号对应明文密码
      */
     public void start(Long qq, String password, String protocol, LoginSolver loginSolver) {
-        final Bot bot = BotFactory.INSTANCE.newBot(qq, password, new BotConfiguration() {
+        final Bot bot = BotFactory.INSTANCE.newBot(qq, qqConfig.isLoginByQr() ? BotAuthorization.byQRCode() :  BotAuthorization.byPassword(password), new BotConfiguration() {
             {
                 this.setCacheDir(new File(qqConfig.getWorkspace() + File.separator + "qq" + File.separator + qq));
                 // 加载设备信息

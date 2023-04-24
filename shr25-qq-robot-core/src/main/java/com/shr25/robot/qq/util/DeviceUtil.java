@@ -9,8 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.utils.DeviceInfo;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.UUID;
 
 /**
  * 机器人终端设备工具类

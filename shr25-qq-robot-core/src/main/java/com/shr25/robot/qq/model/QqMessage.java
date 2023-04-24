@@ -57,6 +57,9 @@ public class QqMessage {
   /** 是否是群管理员,操作人 */
   private boolean isGroupOperator = false;
 
+  /** 群角色 */
+  private MemberPermission permission;
+
   /** 消息类型  1临时消息 2.好友消息 3.群临时消息 4.群消息  */
   private Integer messageType = 0;
 

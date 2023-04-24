@@ -1,6 +1,8 @@
 package com.shr25.robot.qq.plugins;
 
 import com.shr25.robot.base.DelayTask;
+import com.shr25.robot.common.RobotMsgPermission;
+import com.shr25.robot.common.RobotMsgType;
 import com.shr25.robot.qq.model.QqMessage;
 import lombok.Data;
 import net.mamoe.mirai.message.data.MessageChain;
@@ -23,7 +25,7 @@ import java.util.concurrent.Executors;
 @Data
 public abstract class RobotPlugin {
     /** 日志打印 */
-    protected Logger log;
+    protected Logger log = LoggerFactory.getLogger(getClass());;
 
     /** id */
     private Long id;
@@ -52,8 +54,21 @@ public abstract class RobotPlugin {
     /** 命令集 */
     private Set<String> commands = new LinkedHashSet<>();
 
-    public RobotPlugin() {
-        this.log = LoggerFactory.getLogger(getClass());
+    protected Set<RobotMsgPermission> getDefaultPermission(){
+        Set<RobotMsgPermission> defaultPermission = new HashSet<>();
+        defaultPermission.add(RobotMsgPermission.SYSTEM);
+        defaultPermission.add(RobotMsgPermission.ADMIN);
+        defaultPermission.add(RobotMsgPermission.OWNER);
+        defaultPermission.add(RobotMsgPermission.ADMINISTRATOR);
+
+        return defaultPermission;
+    }
+
+    protected Set<RobotMsgType> getDefaultMsgType(){
+        Set<RobotMsgType> defaultMsgType = new HashSet<>();
+        defaultMsgType.add(RobotMsgType.GroupAtBot);
+        defaultMsgType.add(RobotMsgType.Friend);
+        return defaultMsgType;
     }
 
     /**
@@ -311,5 +326,32 @@ public abstract class RobotPlugin {
             }
         }
         commands.add(command + "    " + desc);
+    }
+
+    /**
+     * 添加命令
+     * @param command
+     * @param desc
+     */
+    protected void addCommand(String command, String desc, RobotMsgPermission[] permissions, Boolean... isMaster){
+
+    }
+
+    /**
+     * 添加命令
+     * @param command
+     * @param desc
+     */
+    protected void addCommand(String command, String desc, RobotMsgType[] msgTypes, Boolean... isMaster){
+
+    }
+
+    /**
+     * 添加命令
+     * @param command
+     * @param desc
+     */
+    protected void addCommand(Set<String> commands, String command, String desc, RobotMsgPermission[] permissions, RobotMsgType[] msgTypes, Boolean isMaster){
+
     }
 }
