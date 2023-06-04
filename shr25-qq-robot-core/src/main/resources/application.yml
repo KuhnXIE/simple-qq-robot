@@ -14,6 +14,12 @@ spring :
 #    exclude:
 #      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
 
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: org.sqlite.JDBC
+    url: jdbc:sqlite:db/shrzhr.db
+
+
 mybatis-plus:
   #config-location: classpath:mybatis/mybatis-config.xml
   mapper-locations: classpath*:mybatis/**/*Mapper.xml
@@ -33,7 +39,16 @@ mybatis-plus:
 
 #pagehelper分页插件
 pagehelper:
-  helperDialect: mysql
+  helperDialect: sqlite
   reasonable: true
   supportMethodsArguments: true
   params: count=countSql
+
+
+
+logging:
+  level:
+    java.sql.Connection: debug
+    java.sql.Statement: debug
+    java.sql.PreparedStatement: debug
+    com.shr25: debug

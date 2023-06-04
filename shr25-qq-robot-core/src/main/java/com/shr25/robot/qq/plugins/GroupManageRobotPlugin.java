@@ -2,6 +2,7 @@ package com.shr25.robot.qq.plugins;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.extra.spring.SpringUtil;
+import com.shr25.robot.common.RobotMsgPermission;
 import com.shr25.robot.qq.conf.QqConfig;
 import com.shr25.robot.qq.model.QqGroupInfo;
 import com.shr25.robot.qq.model.QqGroupLog;
@@ -44,56 +45,43 @@ public class GroupManageRobotPlugin extends RobotPlugin {
 
     public GroupManageRobotPlugin() {
         super();
+        log.info("开始加载“群管理插件V2.0”");
         setName("群管理插件");
         addDesc("自动欢迎入群成员,记录群员进出情况");
-        addCommand("#开启迎新", "开启新用户进群迎新消息", true);
-        addCommand("#关闭迎新", "关闭新用户进群迎新消息", true);
-        addCommand("#开启迎新图片", "开启新用户进群随机欢迎图片");
-        addCommand("#关闭迎新图片", "关闭新用户进群随机欢迎图片");
-        addCommand("#开启迎新信息", "开启新用户进群欢迎语");
-        addCommand("#关闭迎新信息", "关闭新用户进群欢迎语");
-        addCommand("#设置迎新信息", "设置新用户进群欢迎语");
+        addCommand("开启迎新", "开启新用户进群迎新消息", qqMessage -> {
+            enabledWelcome(qqMessage);
+            return true;
+        },  true);
+        addCommand("关闭迎新", "关闭新用户进群迎新消息", qqMessage -> {
+            notEnabledWelcome(qqMessage);
+            return true;
+        }, true);
+        addCommand("开启迎新图片", "开启新用户进群随机欢迎图片", qqMessage -> {
+            enabledWelcomeImg(qqMessage);
+            return true;
+        });
+        addCommand("关闭迎新图片", "关闭新用户进群随机欢迎图片", qqMessage -> {
+            notEnabledWelcomeImg(qqMessage);
+            return true;
+        });
+        addCommand("开启迎新信息", "开启新用户进群欢迎语", qqMessage -> {
+            enabledWelcomeMsg(qqMessage);
+            return true;
+        });
+        addCommand("关闭迎新信息", "关闭新用户进群欢迎语", qqMessage -> {
+            notEnabledWelcomeMsg(qqMessage);
+            return true;
+        });
+        addCommand("设置迎新信息", "设置新用户进群欢迎语", qqMessage -> {
+            MessageChainBuilder messageChainBuilder = qqMessage.getMessage();
+            setWelcome(qqMessage, MiraiCode.serializeToMiraiCode(messageChainBuilder));
+            return true;
+        });
         setSort(1000);
         // 媒体文件夹
         File baseMediaPath = FilesKt.resolve(BotConfiguration.getDefault().getWorkingDir(), SpringUtil.getBean(QqConfig.class).getWorkspace() + File.separator + "media" + File.separator);
         this.welcomeImgDir = FilesKt.resolve(baseMediaPath, "welcome_img");
         FileUtil.mkdir(this.welcomeImgDir);
-    }
-
-    @Override
-    public boolean executeGroupMessage(QqMessage qqMessage) {
-        String command = qqMessage.getCommand();
-        if(command != null){
-            if(qqMessage.isCanOperatorGroup()) {
-                switch (command){
-                    case "开启迎新":
-                        enabledWelcome(qqMessage);
-                        break;
-                    case "关闭迎新":
-                        notEnabledWelcome(qqMessage);
-                        break;
-                    case "开启迎新图片":
-                        enabledWelcomeImg(qqMessage);
-                        break;
-                    case "关闭迎新图片":
-                        notEnabledWelcomeImg(qqMessage);
-                        break;
-                    case "开启迎新信息":
-                        enabledWelcomeMsg(qqMessage);
-                        break;
-                    case "关闭迎新信息":
-                        notEnabledWelcomeMsg(qqMessage);
-                        break;
-                    default:
-                        if(qqMessage.getContent().startsWith("#设置迎新信息")){
-                            MessageChainBuilder messageChainBuilder = qqMessage.getMessage("#设置迎新信息");
-                            setWelcome(qqMessage, MiraiCode.serializeToMiraiCode(messageChainBuilder));
-                        }
-                        break;
-                }
-            }
-        }
-        return true;
     }
 
     /**

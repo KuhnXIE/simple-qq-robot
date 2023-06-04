@@ -46,17 +46,17 @@ public class DeviceUtil {
          * @return
          */
     private String getDeviceInfoJson(Long qq) {
-        String imei = "86"+(qq+""+qq).substring(0, 12);
+        String imei = "86"+(qq+"303513").substring(0, 12);
         imei = imei + luhn(imei);
         DeviceInfo deviceInfo = new DeviceInfo(
-                ("MIRAI."+qq.toString().substring(0,6)+".001").getBytes(),//display
-                "mirai".getBytes(), //product
-                "mirai".getBytes(), //device
-                "mirai".getBytes(), //board
+                ("SHR25."+qq.toString().substring(0,6)+".001").getBytes(),//display
+                "shr25".getBytes(), //product
+                "shr25".getBytes(), //device
+                "shr25".getBytes(), //board
                 "mamoe".getBytes(), //brand
-                "mirai".getBytes(), //model
+                "shr25".getBytes(), //model
                 "unknown".getBytes(), //bootloader
-                ("mamoe/mirai/mirai:10/MIRAI.200122.001/"+qq.toString().substring(0,7)+":user/release-keys").getBytes(), //fingerprint
+                ("mamoe/shr25/shr25:10/SHR25.200122.001/"+qq.toString().substring(0,7)+":user/release-keys").getBytes(), //fingerprint
                 SecureUtil.md5(imei).toUpperCase().getBytes(), //bootId
                 ("Linux version 3.0.31-"+qq.toString().substring(0,8)+ "(android-build@xxx.xxx.xxx.xxx.com)").getBytes(), //procVersion
                  new byte[0], //baseBand

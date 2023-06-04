@@ -74,6 +74,19 @@ public class EventListeningHandle extends SimpleListenerHost {
     }
 
     /**
+     * 接受自己发的消息
+     *
+     * @param event 陌生人消息
+     * @return {@link ListeningStatus}
+     */
+    @EventHandler
+    public ListeningStatus onMessageEvent(GroupMessageSyncEvent event) {
+        this.publishMessage(event);
+        // 保持监听
+        return ListeningStatus.LISTENING;
+    }
+
+    /**
      * 监听入群消息
      *
      * @param event 群消息

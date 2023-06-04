@@ -1,6 +1,8 @@
 package com.shr25.robot.qq.plugins;
 
 import com.shr25.robot.base.DelayTask;
+import com.shr25.robot.common.Command;
+import com.shr25.robot.common.ExecuteMessage;
 import com.shr25.robot.common.RobotMsgPermission;
 import com.shr25.robot.common.RobotMsgType;
 import com.shr25.robot.qq.model.QqMessage;
@@ -15,6 +17,8 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.concurrent.DelayQueue;
 import java.util.concurrent.Executors;
+
+import static com.shr25.robot.common.RobotMsgType.Group_Member;
 
 /**
  * 机器人插件接口
@@ -49,35 +53,31 @@ public abstract class RobotPlugin {
     private Map<Long, DelayTask> delayTaskCache;
 
     /** 主要命令 */
-    private Set<String> masterCommands = new LinkedHashSet<>();
+    private Map<String, Command> masterCommands = new HashMap<>();
 
     /** 命令集 */
-    private Set<String> commands = new LinkedHashSet<>();
+    private Map<String, Command> commands = new HashMap<>();
 
-    protected Set<RobotMsgPermission> getDefaultPermission(){
-        Set<RobotMsgPermission> defaultPermission = new HashSet<>();
-        defaultPermission.add(RobotMsgPermission.SYSTEM);
-        defaultPermission.add(RobotMsgPermission.ADMIN);
-        defaultPermission.add(RobotMsgPermission.OWNER);
-        defaultPermission.add(RobotMsgPermission.ADMINISTRATOR);
+    public Collection<String> getAllMasterCommands() {
+        Set<String> allCommands = new TreeSet<>();
+        if(masterCommands.size() > 0){
+            for (Command command : masterCommands.values()) {
+                allCommands.add(command.getCommandStr() + "    " + command.getDesc());
+            }
+        }
 
-        return defaultPermission;
+        return allCommands;
     }
 
-    protected Set<RobotMsgType> getDefaultMsgType(){
-        Set<RobotMsgType> defaultMsgType = new HashSet<>();
-        defaultMsgType.add(RobotMsgType.GroupAtBot);
-        defaultMsgType.add(RobotMsgType.Friend);
-        return defaultMsgType;
-    }
+    public Set<String> getAllCommands(QqMessage qqMessage) {
+        Set<String> allCommands = new TreeSet<>();
+        if(commands.size() > 0){
+            for (Command command : commands.values()) {
+                allCommands.add(command.getCommandStr() + "    " + command.getDesc());
+            }
+        }
 
-    /**
-     * 获取群组可执行命令
-     * @param qqMessage
-     * @return
-     */
-    public Set<String> getAllCommands(QqMessage qqMessage){
-        return commands;
+        return allCommands;
     }
 
     /**
@@ -154,9 +154,9 @@ public abstract class RobotPlugin {
         if(getCommands().size() > 0){
             StringBuffer info = new StringBuffer(desc+"\n指令列表:");
             int n = 0;
-            for (String command : getCommands()) {
+            for (Command command : getCommands().values()) {
                 n++;
-                info.append("\n" + n+ "、 "+command);
+                info.append("\n" + n+ "、 "+command.getCommandStr());
             }
             return info.toString();
         }else{
@@ -240,25 +240,24 @@ public abstract class RobotPlugin {
         return true;
     }
 
-
-
     /**
      * 回复消息
      * @param qqMessage
      */
     public boolean executeMessage(QqMessage qqMessage){
         Boolean flag = false;
-        switch (qqMessage.getMessageType()){
-            case 1:
+        switch (qqMessage.getRobotMsgType()){
+            case Strange:
                 flag = executeStrangerMessage(qqMessage);
                 break;
-            case 2:
+            case Friend:
                 flag = executeFriendMessage(qqMessage);
                 break;
-            case 3:
+            case GroupTemp:
                 flag = executeGroupTempMessage(qqMessage);
                 break;
-            case 4:
+            case Group:
+            case GroupAtBot:
                 flag = executeGroupMessage(qqMessage);
                 break;
         }
@@ -271,15 +270,28 @@ public abstract class RobotPlugin {
      */
     public boolean execute(QqMessage qqMessage){
         Boolean flag = false;
-        switch (qqMessage.getMessageType()){
-            case 0:
+        switch (qqMessage.getRobotMsgType()){
+            case Group_Member:
                 flag = executeGroupMember(qqMessage);
                 break;
-            case 1:
-            case 2:
-            case 3:
-            case 4:
-                flag = executeMessage(qqMessage);
+            default:
+                String commandStr = qqMessage.getCommand();
+                Boolean isCommand = false;
+                if(commandStr != null){
+                    for (Command command : commands.values()) {
+                        if(commandStr.equals(command.getCommandStr()) && command.getPermission().getPermission() >=  qqMessage.getRobotMsgPermission().getPermission()){
+                            isCommand = true;
+                            for (RobotMsgType robotMsgType: command.getRobotMsgTypes()){
+                                if(robotMsgType == qqMessage.getRobotMsgType()){
+                                    command.getExecuteMessage().executeMessage(qqMessage);
+                                }
+                            }
+                        }
+                    }
+                }
+                if(!isCommand){
+                    flag = executeMessage(qqMessage);
+                }
                 break;
         }
         qqMessage.setExecuteNext(flag);
@@ -304,13 +316,9 @@ public abstract class RobotPlugin {
         return builder.build();
     }
 
-    /**
-     * 添加命令
-     * @param command
-     * @param desc
-     */
+
     protected RobotPlugin addCommand(String command, String desc, Boolean... isMaster){
-        addCommand(commands, command, desc, isMaster);
+        addCommand(new Command(command, desc, qqMessage -> { return executeMessage(qqMessage);}), isMaster);
         return this;
     }
 
@@ -319,39 +327,52 @@ public abstract class RobotPlugin {
      * @param command
      * @param desc
      */
-    protected void addCommand(Set<String> commands, String command, String desc, Boolean... isMaster){
+    protected RobotPlugin addCommand(String command, String desc, ExecuteMessage executeMessage, Boolean... isMaster) {
+        addCommand(new Command(command, desc, executeMessage), isMaster);
+        return this;
+    }
+
+    /**
+     * 添加命令
+     * @param command
+     * @param desc
+     */
+    protected RobotPlugin addCommand(String command, String desc, RobotMsgPermission permission, ExecuteMessage executeMessage, Boolean... isMaster) {
+        addCommand(new Command(command, desc, permission, executeMessage), isMaster);
+        return this;
+    }
+
+    /**
+     * 添加命令
+     * @param command
+     * @param desc
+     */
+    protected RobotPlugin addCommand(String command, String desc, RobotMsgType[] robotMsgTypes, ExecuteMessage executeMessage, Boolean... isMaster) {
+        addCommand(new Command(command, desc, robotMsgTypes, executeMessage), isMaster);
+        return this;
+    }
+
+    /**
+     * 添加命令
+     * @param command
+     * @param desc
+     */
+    protected RobotPlugin addCommand(String command, String desc, RobotMsgPermission permission, RobotMsgType[] robotMsgTypes, ExecuteMessage executeMessage, Boolean... isMaster) {
+        addCommand(new Command(command, desc, permission, robotMsgTypes, executeMessage), isMaster);
+        return this;
+    }
+
+    /**
+     * 添加命令
+     * @param command
+     * @param isMaster
+     */
+    protected void addCommand(Command command, Boolean... isMaster){
         if(isMaster != null && isMaster.length>0 && isMaster[0]){
             if(masterCommands.size()<2){
-                masterCommands.add(command + "    " + desc);
+                masterCommands.put(command.getCommandStr(), command);
             }
         }
-        commands.add(command + "    " + desc);
-    }
-
-    /**
-     * 添加命令
-     * @param command
-     * @param desc
-     */
-    protected void addCommand(String command, String desc, RobotMsgPermission[] permissions, Boolean... isMaster){
-
-    }
-
-    /**
-     * 添加命令
-     * @param command
-     * @param desc
-     */
-    protected void addCommand(String command, String desc, RobotMsgType[] msgTypes, Boolean... isMaster){
-
-    }
-
-    /**
-     * 添加命令
-     * @param command
-     * @param desc
-     */
-    protected void addCommand(Set<String> commands, String command, String desc, RobotMsgPermission[] permissions, RobotMsgType[] msgTypes, Boolean isMaster){
-
+        commands.put(command.getCommandStr(), command);
     }
 }

@@ -1,5 +1,6 @@
 package com.shr25.robot.qq.plugins;
 
+import com.shr25.robot.common.RobotMsgPermission;
 import com.shr25.robot.qq.model.QqGroupInfo;
 import com.shr25.robot.qq.model.QqGroupMessage;
 import com.shr25.robot.qq.model.QqMessage;
@@ -34,83 +35,47 @@ public class MicrophoneRobotPlugin  extends RobotPlugin {
 
   public MicrophoneRobotPlugin() {
     super();
+    log.info("开始加载“传声筒插件V2.0”");
     setName("传声筒插件");
     addDesc("在多个群同步发送的消息");
+    addCommand("所有群", "对机器人所有加入的群进行群发消息", RobotMsgPermission.ADMIN, qqMessage -> {
+      MessageChainBuilder builder = qqMessage.getMessage();
+      MessageUtil.getAllGroups().forEach(contact -> {
+        qqMessage.putReplyMessage(contact, builder);
+      });
+      return true;
+    });
     setSort(1001);
   }
 
   @Override
   public Set<String> getAllCommands(QqMessage qqMessage){
-    Set<String> commands = new TreeSet<>();
+    Set<String> commands = super.getAllCommands(qqMessage);
+
     if(qqMessage.getGroupId() != null){
       QqGroupInfo qqGroupInfo = qqGroupInfoService.query().eq("group_id", qqMessage.getGroupId()).one();
       if(qqGroupInfo != null && StringUtils.isNotBlank(qqGroupInfo.getKeyword())){
         String[] keywords = qqGroupInfo.getKeyword().split(",");
         if(keywords.length>3){
           for (int i = 1; i <= keywords.length-2; i++) {
-            addCommand(commands, "#"+keywords[i]+"{需要群发的消息}", "群发消息到“"+keywords[i]+"“群");
+            commands.add("#"+keywords[i]+"{需要群发的消息}"+ "    " +"群发消息到“"+keywords[i]+"“群");
           }
         }
         return commands;
       }
     }
-    if(qqMessage.isManager()){
-      addCommand(commands, "#所有群", "对机器人所有加入的群进行群发消息");
-    }
     return commands;
-
   }
 
   @Override
-  public boolean executeGroupMessage(QqMessage qqMessage) {
-    String command = qqMessage.getCommand();
-    if(command != null){
-      if(qqMessage.isCanOperatorGroup()) {
-        List<QqGroupInfo> qqGroupInfoList = qqGroupInfoService.query().like("keyword", command).list();
-        //所有监听关键字的群
-        List<Group> groups = new ArrayList<>();
-        //群是否监听关键字
-        AtomicBoolean isCan = new AtomicBoolean(false);
-        if (qqGroupInfoList != null) {
-          qqGroupInfoList.forEach(item -> {
-            if (item.getGroupId().equals(qqMessage.getGroupId())) {
-              isCan.set(true);
-            } else {
-              Group group = MessageUtil.getGroup(item.getGroupId());
-              if (group != null) {
-                groups.add(group);
-              }
-            }
-          });
-
-          if (groups.size() > 0 && isCan.get()) {
-            MessageChainBuilder builder = qqMessage.getMessage("#"+command);
-            groups.forEach(contact -> {
-              qqMessage.putReplyMessage(contact, builder);
-            });
-            saveMessage(qqMessage, command);
-          }
-        }
-      }
-    }
-
-    return true;
+  public boolean executeMessage(QqMessage qqMessage) {
+    return batchSend(qqMessage);
   }
 
-  @Override
-  public boolean executeFriendMessage(QqMessage qqMessage) {
-    String command = qqMessage.getCommand();
-    if(command != null){
-      if (qqMessage.getContent().startsWith("#所有群")) {
-        if (qqMessage.isManager()) {
-          MessageChainBuilder builder = qqMessage.getMessage("#所有群");
-          MessageUtil.getAllGroups().forEach(contact -> {
-            qqMessage.putReplyMessage(contact, builder);
-          });
-        }
-      } else {
+  public boolean batchSend(QqMessage qqMessage) {
+    if(StringUtils.isNotBlank(qqMessage.getCommand())){
         if(qqMessage.isManager()) {
-          List<QqGroupInfo> qqGroupInfoList = qqGroupInfoService.query().like("keyword", command).list();
+          List<QqGroupInfo> qqGroupInfoList = qqGroupInfoService.query().like("keyword", qqMessage.getCommand()).list();
           //所有监听关键字的群
           List<Group> groups = new ArrayList<>();
           //群是否监听关键字
@@ -123,15 +88,14 @@ public class MicrophoneRobotPlugin  extends RobotPlugin {
             });
 
             if (groups.size() > 0) {
-              MessageChainBuilder builder = qqMessage.getMessage("#"+command);
+              MessageChainBuilder builder = qqMessage.getMessage();
               groups.forEach(contact -> {
                 qqMessage.putReplyMessage(contact, builder);
               });
-              saveMessage(qqMessage, command);
+              saveMessage(qqMessage, qqMessage.getCommand());
             }
           }
         }
-      }
     }
     return true;
   }
@@ -142,7 +106,7 @@ public class MicrophoneRobotPlugin  extends RobotPlugin {
     qqGroupMessage.setQq(qqMessage.getSender().getId());
     qqGroupMessage.setQqName(qqMessage.getSender().getNick());
     qqGroupMessage.setKeyword(command);
-    qqGroupMessage.setMessage(qqMessage.getParameter("#"+command));
+    qqGroupMessage.setMessage(qqMessage.getParameter());
     qqGroupMessageService.save(qqGroupMessage);
   }
 }

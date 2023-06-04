@@ -2,9 +2,13 @@ package com.shr25.robot.qq.model;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import com.shr25.robot.common.RobotMsgPermission;
+import com.shr25.robot.common.RobotMsgType;
 import com.shr25.robot.qq.conf.QqConfig;
 import com.shr25.robot.qq.util.MessageUtil;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
@@ -16,6 +20,7 @@ import net.mamoe.mirai.message.data.At;
 import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.MessageChainBuilder;
 import net.mamoe.mirai.message.data.PlainText;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -28,8 +33,12 @@ import java.util.regex.Pattern;
  * @date 2022-6-13 19:10
  */
 @Slf4j
-@Data
+@Getter
+@Setter
 public class QqMessage {
+  /** 接收消息的机器人QQ */
+  private Long botId = null;
+
   /** 消息发送者QQ */
   private Long senderId = null;
 
@@ -48,23 +57,17 @@ public class QqMessage {
   /** 发生消息的QQ群 */
   private Group group = null;
 
-  /** 是否超级管理员 */
-  private boolean isRoot = false;
+  /** 角色 */
+  private RobotMsgPermission robotMsgPermission;
 
-  /** 是否普通管理员 */
-  private boolean isNormalManage = false;
-
-  /** 是否是群管理员,操作人 */
-  private boolean isGroupOperator = false;
-
-  /** 群角色 */
-  private MemberPermission permission;
-
-  /** 消息类型  1临时消息 2.好友消息 3.群临时消息 4.群消息  */
-  private Integer messageType = 0;
+  /** 消息类型 */
+  private RobotMsgType robotMsgType;
 
   /** at */
   private Boolean at = false;
+
+  /** 指令 */
+  String command;
 
   /** 消息体 */
   private String content = null;
@@ -92,8 +95,8 @@ public class QqMessage {
       senderId = ((GroupMemberEvent) event).getMember().getId();
       groupId = contact.getId();
       groupName = group.getName();
-      isGroupOperator = isOperator(event);
     }else if (event instanceof MessageEvent){
+      botId = ((MessageEvent) this.getEvent()).getBot().getId();
       content = getTextContent();
       sender = ((MessageEvent) event).getSender();
       senderId = sender.getId();
@@ -103,39 +106,73 @@ public class QqMessage {
         contact = group;
         groupId =  contact.getId();
         groupName = group.getName();
-        isGroupOperator = isOperator(event);
+      }else if(event instanceof GroupMessageSyncEvent){
+        group = ((GroupMessageSyncEvent) event).getGroup();
+        contact = group;
+        groupId =  contact.getId();
+        groupName = group.getName();
       }else{
         contact = sender;
       }
 
-      if(event instanceof GroupMessageEvent){
-        messageType = 4;
+      if(event instanceof GroupMessageEvent || event instanceof GroupMessageSyncEvent){
+        if(at){
+          robotMsgType = RobotMsgType.GroupAtBot;
+        }else{
+          robotMsgType = RobotMsgType.Group;
+        }
       }else if(event instanceof GroupTempMessageEvent){
-        messageType = 3;
+        robotMsgType = RobotMsgType.GroupTemp;
       }else if(event instanceof FriendMessageEvent){
-        messageType = 2;
+        robotMsgType = RobotMsgType.Friend;
       }else if(event instanceof StrangerMessageEvent){
-        messageType = 1;
+        robotMsgType = RobotMsgType.Strange;
       }
     }
 
-    isRoot = isRootManageQQ(senderId, qqConfig);
-    isNormalManage = isManageQQ(senderId, qqConfig, normalManage);
+    if(event instanceof GroupMessageSyncEvent){
+      robotMsgPermission = RobotMsgPermission.SYSTEM;
+    }else if(isRootManageQQ(senderId, qqConfig)){
+      robotMsgPermission = RobotMsgPermission.SYSTEM;
+    }else if(normalManage.contains(senderId)){
+      robotMsgPermission = RobotMsgPermission.ADMIN;
+    }else{
+      MemberPermission permission = null;
+      // 群主或者管理员
+      if (event instanceof GroupMessageEvent) {
+        permission = ((GroupMessageEvent) event).getPermission();
+        log.info("-在QQ群-{}-中--{}--发消息--群权限：{}", groupId, senderId, permission);
+      }else if (event instanceof  GroupMemberEvent){
+        permission = ((GroupMemberEvent) event).getMember().getPermission();
+      }
+
+      if(permission != null){
+        if (MemberPermission.OWNER.equals(permission)) {
+          robotMsgPermission = RobotMsgPermission.OWNER;
+        }else if(MemberPermission.ADMINISTRATOR.equals(permission)){
+          robotMsgPermission = RobotMsgPermission.ADMINISTRATOR;
+        } else{
+          robotMsgPermission = RobotMsgPermission.MEMBER;
+        }
+      }else{
+        robotMsgPermission = RobotMsgPermission.MEMBER;
+      }
+    }
   }
 
   /**
    * 获取命令
    */
-  public String getCommand(){
+  public String getCommand(String msg){
     String command = null;
-    String pattern = "^#(\\S+)(\\s+(.*))?";
+    String pattern = "^[#|/](\\S+)(\\s+(.*))?";
 
     // 创建 Pattern 对象
     Pattern r = Pattern.compile(pattern);
 
-    if(getContent() != null) {
+    if(msg != null) {
       // 现在创建 matcher 对象
-      Matcher m = r.matcher(getContent());
+      Matcher m = r.matcher(msg);
       if (m.find()) {
         command = m.group(1);
       }
@@ -145,12 +182,11 @@ public class QqMessage {
 
   /**
    * 获取 命令后的参数
-   * @param regex
    * @return
    */
-  public String getParameter(String regex){
+  public String getParameter(){
     if(getContent() != null) {
-      return getContent().replaceFirst(regex, "").trim();
+      return getContent().trim();
     }else{
       return "";
     }
@@ -158,18 +194,17 @@ public class QqMessage {
 
   /**
    * 获取接受的消息体
-   * @param prefix
    * @return
    */
-  public MessageChainBuilder getMessage(String prefix){
+  public MessageChainBuilder getMessage(){
     // 接收的字符串消息
     MessageChainBuilder builder = MessageUtil.createBuilder();
     getMessageEvent().getMessage().forEach(singleMessage -> {
       // 过滤艾特消息
       if (singleMessage instanceof At) {
       } else if(singleMessage instanceof PlainText){
-        if(singleMessage.contentToString().trim().startsWith(prefix)){
-          builder.append(new PlainText(singleMessage.contentToString().substring(prefix.length()).trim()));
+        if(StringUtils.isNotBlank(command) && builder.isEmpty()){
+          builder.append(new PlainText(singleMessage.contentToString().substring(command.length()+1).trim()));
         }else{
           builder.append(singleMessage);
         }
@@ -187,11 +222,22 @@ public class QqMessage {
   public String getTextContent(){
     // 接收的字符串消息
     StringBuilder strMsg = new StringBuilder();
-    if (event instanceof GroupMessageEvent) {
+    if (event instanceof GroupMessageSyncEvent) {
+      getMessageEvent().getMessage().forEach(singleMessage -> {
+        // 过滤艾特消息
+        if (singleMessage instanceof At) {
+          if (((At) singleMessage).getTarget() == botId) {
+            at = true;
+          }
+        }else if(singleMessage instanceof PlainText){
+          strMsg.append(singleMessage.contentToString().trim());
+        }
+      });
+    }else if (event instanceof GroupMessageEvent) {
       getGroupMessageEvent().getMessage().forEach(singleMessage -> {
         // 过滤艾特消息
         if (singleMessage instanceof At) {
-          if (((At) singleMessage).getTarget() == getMessageEvent().getBot().getId()) {
+          if (((At) singleMessage).getTarget() == botId) {
             at = true;
           }
         }else if(singleMessage instanceof PlainText){
@@ -206,17 +252,29 @@ public class QqMessage {
         }
       });
     }
-    return strMsg.toString().trim();
+
+    command = getCommand(strMsg.toString().trim());
+    if(StringUtils.isNotBlank(command)){
+      return strMsg.substring(command.length()+1).trim();
+    }else{
+      return strMsg.toString().trim();
+    }
+
+  }
+
+  /** 是否是超级管理员 */
+  public boolean isSuperManager(){
+    return robotMsgPermission.getPermission() <= RobotMsgPermission.SYSTEM.getPermission();
   }
 
   /** 是否是管理员 */
   public boolean isManager(){
-    return isNormalManage || isRoot;
+    return robotMsgPermission.getPermission() <= RobotMsgPermission.ADMIN.getPermission();
   }
 
   /** 是否可以操作群 */
   public boolean isCanOperatorGroup(){
-    return groupId != null && (isGroupOperator || isNormalManage || isRoot);
+    return groupId != null && robotMsgPermission.getPermission() <= RobotMsgPermission.ADMINISTRATOR.getPermission();
   }
 
   /**
@@ -227,35 +285,6 @@ public class QqMessage {
    */
   private boolean isRootManageQQ(Long qq, QqConfig qqConfig) {
     return qqConfig.getRootManageQq().contains(qq);
-  }
-
-  /**
-   * 是否超级管理员
-   *
-   * @param qq
-   * @return
-   */
-  private boolean isManageQQ(Long qq, QqConfig qqConfig, Set<Long> normalManage) {
-    return isRootManageQQ(qq, qqConfig) || normalManage.contains(qq);
-  }
-
-  /**
-   * 是否群管理员
-   *
-   * @param event
-   * @return
-   */
-  private boolean isOperator(Event event) {
-    MemberPermission permission = null;
-    // 群主或者管理员
-    if (event instanceof GroupMessageEvent) {
-      permission = ((GroupMessageEvent) event).getPermission();
-      log.info("-在QQ群-{}-中--{}--发消息--群权限：{}", groupId, senderId, permission);
-    }else if (event instanceof  GroupMemberEvent){
-      permission = ((GroupMemberEvent) event).getMember().getPermission();
-    }
-
-    return permission != null && (MemberPermission.ADMINISTRATOR.equals(permission) || MemberPermission.OWNER.equals(permission));
   }
 
   public MessageEvent getMessageEvent() {
@@ -379,12 +408,5 @@ public class QqMessage {
    */
   public boolean isSysBot(){
     return senderId > 2854190000l && senderId < 2854200000l;
-  }
-  /**
-   * 是否群消息
-   * @return
-   */
-  public boolean isGroupMessage(){
-    return messageType == 3 || messageType == 4;
   }
 }

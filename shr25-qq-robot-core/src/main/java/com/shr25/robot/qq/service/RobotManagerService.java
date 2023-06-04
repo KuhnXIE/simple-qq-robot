@@ -74,136 +74,147 @@ public class RobotManagerService {
 
     public String getDesc() {
         return "系统管理 使用方式：\n"
-          + "#初始化\n"
-          + "#开机\n"
-          + "#关机\n"
-          + "#管理员列表\n"
-          + "#添加管理员 {qq号/@群成员}\n"
-          + "#删除管理员 {qq号/@群成员}\n"
-          + "#群白名单\n"
-          + "#添加群 {群号}\n"
-          + "#删除群 {群号}\n"
-          + "#机器人状态\n"
-          + "#全部插件/#所有插件\n"
-          + "#插件列表 {群号，管理员发群消息可以省略}\n"
-          + "#添加插件 {插件名称} {群号，管理员发群消息可以省略} \n"
-          + "#删除插件 {插件名称} {群号，管理员发群消息可以省略} \n"
-          + "#开启插件 {插件名称}\n"
-          + "#关闭插件 {插件名称}\n"
-          + "#插件详情 {插件名称}\n";
+          + "初始化\n"
+          + "开机\n"
+          + "关机\n"
+          + "管理员列表\n"
+          + "添加管理员 {qq号/@群成员}\n"
+          + "删除管理员 {qq号/@群成员}\n"
+          + "群白名单\n"
+          + "添加群 {群号}\n"
+          + "删除群 {群号}\n"
+          + "机器人状态\n"
+          + "全部插件/#所有插件\n"
+          + "插件列表 {群号，管理员发群消息可以省略}\n"
+          + "添加插件 {插件名称} {群号，管理员发群消息可以省略} \n"
+          + "删除插件 {插件名称} {群号，管理员发群消息可以省略} \n"
+          + "开启插件 {插件名称}\n"
+          + "关闭插件 {插件名称}\n"
+          + "插件详情 {插件名称}\n";
     }
 
     public void publishMessage(Event event) {
         QqMessage qqMessage = new QqMessage(event, qqConfig, NORMAL_MANAGE_QQ);
 
-        if(qqMessage.getMessageType() != 0){
-            if(!StringUtils.isBlank(qqMessage.getContent())) {
-                switch (qqMessage.getContent()) {
-                    case "#管理":
+        if(qqMessage.getRobotMsgType().getMsgType() > 1){
+            if(StringUtils.isNotBlank(qqMessage.getCommand())) {
+                switch (qqMessage.getCommand()) {
+                    case "help":
                         if (qqMessage.isManager()) {
                             qqMessage.putReplyMessage(getDesc());
                         }
                         break;
-                    case "#初始化":
+                    case "管理":
+                        if (qqMessage.isManager()) {
+                            qqMessage.putReplyMessage(getDesc());
+                        }
+                        break;
+                    case "初始化":
                         if (qqMessage.isManager()) {
                             init();
                             qqMessage.putReplyMessage("初始化成功！~~~");
                         }
                         break;
-                    case "#开机":
+                    case "开机":
                         if (qqMessage.isManager()) {
                             enabled = true;
                             this.addRobotStatusMessage(qqMessage);
                         }
                         break;
-                    case "#关机":
+                    case "关机":
                         if (qqMessage.isManager()) {
                             enabled = false;
                             this.addRobotStatusMessage(qqMessage);
                         }
                         break;
-                    case "#管理员列表":
-                        if (qqMessage.isRoot()) {
+                    case "管理员列表":
+                        if (qqMessage.isManager()) {
                             this.addGroupListMessage(qqMessage);
                         }
                         break;
-                    case "#全部插件":
-                    case "#所有插件":
+                    case "全部插件":
+                    case "所有插件":
                         if(qqMessage.isManager()){
                             this.addAllPluginsListMessage(qqMessage);
                         }
                         break;
-                    case "#插件列表":
-                        this.addPluginsListMessage(qqMessage);
+                    case "插件列表":
+                        if(StringUtils.isBlank(qqMessage.getContent())){
+                            this.addPluginsListMessage(qqMessage);
+                        }else{
+                            if (qqMessage.isManager()) {
+                                this.addPluginsListMessage(qqMessage, qqMessage.getParameter());
+                            }
+                        }
                         break;
-                    case "#机器人状态":
+                    case "机器人状态":
                         if (qqMessage.isManager()) {
                             this.addRobotStatusMessage(qqMessage);
                         }
                         break;
+                    case "添加管理员":
+                        if (qqMessage.isSuperManager()) {
+                            this.addManage(qqMessage, qqMessage.getParameter(), true);
+                        }
+                        break;
+                    case "删除管理员":
+                        if (qqMessage.isSuperManager()) {
+                            this.addManage(qqMessage, qqMessage.getParameter(), false);
+                        }
+                        break;
+                    case "添加群":
+                        if (qqMessage.isManager()) {
+                            this.addGroupList(qqMessage, qqMessage.getParameter(), true);
+                        }
+                        break;
+                    case "删除群":
+                        if (qqMessage.isManager()) {
+                            this.addGroupList(qqMessage, qqMessage.getParameter(), false);
+                        }
+                        break;
+                    case "添加插件":
+                        if (qqMessage.isManager()) {
+                            this.addPluginsList(qqMessage, qqMessage.getParameter(), true);
+                        }
+                        break;
+                    case "删除插件":
+                        if (qqMessage.isManager()) {
+                            this.addPluginsList(qqMessage, qqMessage.getParameter(), false);
+                        }
+                        break;
+                    case "开启插件":
+                        if (qqMessage.isManager() || qqMessage.isCanOperatorGroup()) {
+                            this.startPlugin(qqMessage, qqMessage.getParameter(), true);
+                        }
+                        break;
+                    case "关闭插件":
+                        if (qqMessage.isManager() || qqMessage.isCanOperatorGroup()) {
+                            this.startPlugin(qqMessage, qqMessage.getParameter(), false);
+                        }
+                        break;
                     default:
-                        // root管理员才有的功能
-                        if (qqMessage.getContent().startsWith("#添加管理员")) {
-                            if (qqMessage.isRoot()) {
-                                this.addManage(qqMessage, qqMessage.getParameter("#添加管理员"), true);
-                            }
-                        } else if (qqMessage.getContent().startsWith("#删除管理员")) {
-                            if (qqMessage.isRoot()) {
-                                this.addManage(qqMessage, qqMessage.getParameter("#删除管理员"), false);
-                            }
-                        } else if (qqMessage.getContent().startsWith("#添加群")) {
-                            if (qqMessage.isManager()) {
-                                this.addGroupList(qqMessage, qqMessage.getParameter("#添加群"), true);
-                            }
-                        } else if (qqMessage.getContent().startsWith("#删除群")) {
-                            if (qqMessage.isManager()) {
-                                this.addGroupList(qqMessage, qqMessage.getParameter("#删除群"), false);
-                            }
-                        } else if (qqMessage.getContent().startsWith("#插件列表")) {
-                            if (qqMessage.isManager()) {
-                                this.addPluginsListMessage(qqMessage, qqMessage.getParameter("#插件列表"));
-                            }
-                        }  else if (qqMessage.getContent().startsWith("#添加插件")) {
-                            if (qqMessage.isManager()) {
-                                this.addPluginsList(qqMessage, qqMessage.getParameter("#添加插件"), true);
-                            }
-                        } else if (qqMessage.getContent().startsWith("#删除插件")) {
-                            if (qqMessage.isManager()) {
-                                this.addPluginsList(qqMessage, qqMessage.getParameter("#删除插件"), false);
-                            }
-                        }  else if (qqMessage.getContent().startsWith("#开启插件")) {
-                            if (qqMessage.isCanOperatorGroup() || qqMessage.isManager()) {
-                                this.startPlugin(qqMessage, qqMessage.getParameter("#开启插件"), true);
-
-                            }
-                        } else if (qqMessage.getContent().startsWith("#关闭插件")) {
-                            if (qqMessage.isCanOperatorGroup() || qqMessage.isManager()) {
-                                this.startPlugin(qqMessage, qqMessage.getParameter("#关闭插件"), false);
-                            }
-                        } else {
-                            //是否插件简介
-                            boolean isPluginDesc = false;
-                            if (qqMessage.getContent().matches("#(\\S+)$")) {
-                                QqPlugin qqPlugin = qqPluginNameMap.get(qqMessage.getContent().substring(1));
-                                if (qqPlugin != null) {
-                                    try {
-                                        Class<RobotPlugin> clazz = (Class<RobotPlugin>) Class.forName(qqPlugin.getClassName());
-                                        RobotPlugin robotPlugin = SpringUtil.getBean(clazz);
-                                        qqMessage.putReplyMessage(robotPlugin.info());
-                                        isPluginDesc = true;
-                                    } catch (ClassNotFoundException e) {
-                                        e.printStackTrace();
-                                    }
+                        //是否插件简介
+                        boolean isPluginDesc = false;
+                        if (StringUtils.isNotBlank(qqMessage.getCommand())) {
+                            QqPlugin qqPlugin = qqPluginNameMap.get(qqMessage.getCommand());
+                            if (qqPlugin != null) {
+                                try {
+                                    Class<RobotPlugin> clazz = (Class<RobotPlugin>) Class.forName(qqPlugin.getClassName());
+                                    RobotPlugin robotPlugin = SpringUtil.getBean(clazz);
+                                    qqMessage.putReplyMessage(robotPlugin.info());
+                                    isPluginDesc = true;
+                                } catch (ClassNotFoundException e) {
+                                    e.printStackTrace();
                                 }
                             }
-                            if (!isPluginDesc) {
-                                execute(qqMessage);
-                            }
+                        }
+                        if (!isPluginDesc) {
+                            execute(qqMessage);
                         }
                         break;
                 }
             }else{
-                if(qqMessage.getAt()) {
+                if(qqMessage.getAt() && (qqMessage.isManager() || qqMessage.isCanOperatorGroup())) {
                     qqMessage.putReplyMessage(getCommandsStr(qqMessage));
                 }
             }
@@ -294,20 +305,13 @@ public class RobotManagerService {
         int n = 0;
         if(qqMessage.isManager()){
             n++;
-            strMsg.append(n+ "、#管理    所有的管理命令\n");
+            strMsg.append(n+ "、管理    所有的管理命令\n");
         }
-
-//        if(qqConfig.isSimplifyCommand()){
-//            for (QqPluginVo item : getPlugins(qqMessage)) {
-//                n++;
-//                strMsg.append(n + "、#" + item.getRobotPlugin().getName() + '\n');
-//            }
-//        }
         Set<String> allCommands = new TreeSet<>();
         getPlugins(qqMessage).forEach(item -> {
             if(item.isEnabled() && item.getRobotPlugin().isEnabled()){
                 if(qqConfig.isSimplifyCommand()){
-                    allCommands.addAll(item.getRobotPlugin().getMasterCommands());
+                    allCommands.addAll(item.getRobotPlugin().getAllMasterCommands());
                 }else {
                     allCommands.addAll(item.getRobotPlugin().getAllCommands(qqMessage));
                 }
