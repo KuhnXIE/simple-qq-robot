@@ -27,7 +27,7 @@ public class Command {
     /**
      * 默认接受消息
      */
-    private RobotMsgType[] robotMsgTypes = {RobotMsgType.GroupAtBot, RobotMsgType.Friend};
+    private RobotMsgType[] robotMsgTypes = {RobotMsgType.GroupAtBot, RobotMsgType.Group, RobotMsgType.Friend};
 
     private ExecuteMessage executeMessage;
 

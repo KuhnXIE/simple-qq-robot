@@ -213,6 +213,8 @@ public class RobotManagerService {
                         }
                         break;
                 }
+            }else if(StringUtils.isNotBlank(qqMessage.getContent())){
+                execute(qqMessage);
             }else{
                 if(qqMessage.getAt() && (qqMessage.isManager() || qqMessage.isCanOperatorGroup())) {
                     qqMessage.putReplyMessage(getCommandsStr(qqMessage));
