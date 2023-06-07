@@ -16,10 +16,7 @@ import net.mamoe.mirai.contact.MemberPermission;
 import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.event.Event;
 import net.mamoe.mirai.event.events.*;
-import net.mamoe.mirai.message.data.At;
-import net.mamoe.mirai.message.data.Message;
-import net.mamoe.mirai.message.data.MessageChainBuilder;
-import net.mamoe.mirai.message.data.PlainText;
+import net.mamoe.mirai.message.data.*;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Set;
@@ -200,16 +197,18 @@ public class QqMessage {
     // 接收的字符串消息
     MessageChainBuilder builder = MessageUtil.createBuilder();
     getMessageEvent().getMessage().forEach(singleMessage -> {
-      // 过滤艾特消息
-      if (singleMessage instanceof At) {
-      } else if(singleMessage instanceof PlainText){
-        if(StringUtils.isNotBlank(command) && builder.isEmpty()){
-          builder.append(new PlainText(singleMessage.contentToString().substring(command.length()+1).trim()));
-        }else{
+      if(singleMessage instanceof MessageContent) {
+        // 过滤艾特消息
+        if (singleMessage instanceof At) {
+        } else if (singleMessage instanceof PlainText) {
+          if (StringUtils.isNotBlank(command) && builder.isEmpty()) {
+            builder.append(new PlainText(singleMessage.contentToString().substring(command.length() + 1).trim()));
+          } else {
+            builder.append(singleMessage);
+          }
+        } else {
           builder.append(singleMessage);
         }
-      }else{
-        builder.append(singleMessage);
       }
     });
     return builder;
