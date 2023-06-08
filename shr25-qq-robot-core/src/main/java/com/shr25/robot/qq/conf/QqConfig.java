@@ -44,4 +44,9 @@ public class QqConfig {
 
     /** 管理员qq列表 */
     private Set<Long> rootManageQq;
+
+    /**
+     * 请求网络 API 的超时事件，以 ms 为单位
+     */
+    public static int timeout = 3000;
 }

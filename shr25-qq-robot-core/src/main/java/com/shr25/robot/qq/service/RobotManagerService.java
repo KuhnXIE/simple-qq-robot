@@ -4,6 +4,8 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.shr25.robot.api.AbstractApiMessage;
+import com.shr25.robot.api.ApiFactory;
 import com.shr25.robot.qq.conf.QqConfig;
 import com.shr25.robot.qq.model.QqMessage;
 import com.shr25.robot.qq.model.Vo.QqPluginVo;
@@ -221,7 +223,16 @@ public class RobotManagerService {
                 // 不是指令也不是艾特消息走这里
             } else {
                 if(StringUtils.isNotBlank(qqMessage.getContent())){
-                    execute(qqMessage);
+//                    execute(qqMessage);
+                    String content = qqMessage.getContent();
+                    String[] command = content.split(" ");
+                    // 判断是否存在调用第三方接口
+                    if (command.length > 1){
+                        AbstractApiMessage instance = ApiFactory.getInstance(command[0]);
+                        if (instance != null){
+                            instance.handleMessageEvent(qqMessage);
+                        }
+                    }
                 }
             }
         }else{

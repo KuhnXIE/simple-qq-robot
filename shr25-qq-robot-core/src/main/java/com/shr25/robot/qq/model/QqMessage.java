@@ -4,9 +4,10 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.shr25.robot.common.RobotMsgPermission;
 import com.shr25.robot.common.RobotMsgType;
+import com.shr25.robot.exception.FileUploadException;
 import com.shr25.robot.qq.conf.QqConfig;
 import com.shr25.robot.qq.util.MessageUtil;
-import lombok.Data;
+import com.shr25.robot.utils.IOUtil;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,9 @@ import net.mamoe.mirai.event.events.*;
 import net.mamoe.mirai.message.data.*;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -408,4 +412,32 @@ public class QqMessage {
   public boolean isSysBot(){
     return senderId > 2854190000l && senderId < 2854200000l;
   }
+
+  /**
+   * 上传并获取图片信息
+   */
+  public Image uploadImage(URL url) throws FileUploadException {
+    return uploadImage(this.contact, url);
+  }
+
+  /**
+   * 网络图片并上传至腾讯服务器
+   *
+   * @param contact 要发送的对象，仅会上传而不会实际发送
+   * @param url     网络图片 URL
+   * @return net.mamoe.mirai.message.data.Image
+   */
+  public static Image uploadImage(Contact contact, URL url) throws FileUploadException {
+    try (InputStream stream = IOUtil.sendAndGetResponseStream(
+            url,
+            "GET",
+            null,
+            null
+    )) {
+      return Contact.uploadImage(contact, stream);
+    } catch (IOException e) {
+      throw new FileUploadException(e);
+    }
+  }
+
 }
