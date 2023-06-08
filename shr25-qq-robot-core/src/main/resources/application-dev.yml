@@ -5,9 +5,9 @@
 #项目单独配置
 project:
   qq-robot:
-    name: 树人
-    qq: 机器人QQ号
-    password: 机器人密码
+    name: 猫猫~
+    qq: 507572773
+    password: 200006168235xk
     #协议 ANDROID_PHONE,  ANDROID_PAD, ANDROID_WATCH, IPAD, MACOS; 默认 ANDROID_PHONE
     protocol: ANDROID_WATCH
     #是否扫码登录，只支持MACOS、ANDROID_WATCH协议，局域网扫码
@@ -20,4 +20,4 @@ project:
     simplify-command: true
     #管理员qq列表
     root-manage-qq:
-      - 管理员QQ号
+      - 1823977035

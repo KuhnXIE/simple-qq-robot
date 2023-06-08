@@ -15,10 +15,13 @@ spring :
 #      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
 
   datasource:
-    type: com.alibaba.druid.pool.DruidDataSource
-    driver-class-name: org.sqlite.JDBC
-    url: jdbc:sqlite:db/shrzhr.db
-
+#    type: com.alibaba.druid.pool.DruidDataSource
+#    driver-class-name: org.sqlite.JDBC
+#    url: jdbc:sqlite:db/shrzhr.db
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/qqrobot?useUnicode=true&useSSL=false&characterEncoding=utf-8&serverTimezone=UTC
+    username: root
+    password: 123456
 
 mybatis-plus:
   #config-location: classpath:mybatis/mybatis-config.xml
