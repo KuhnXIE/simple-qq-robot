@@ -213,11 +213,15 @@ public class RobotManagerService {
                         }
                         break;
                 }
-            }else if(StringUtils.isNotBlank(qqMessage.getContent())){
-                execute(qqMessage);
-            }else{
-                if(qqMessage.getAt() && (qqMessage.isManager() || qqMessage.isCanOperatorGroup())) {
+                // 如果是艾特消息，判断是不是管理员
+            }else if (qqMessage.getAt()) {
+                if (qqMessage.isManager() || qqMessage.isCanOperatorGroup()){
                     qqMessage.putReplyMessage(getCommandsStr(qqMessage));
+                }
+                // 不是指令也不是艾特消息走这里
+            } else {
+                if(StringUtils.isNotBlank(qqMessage.getContent())){
+                    execute(qqMessage);
                 }
             }
         }else{

@@ -113,6 +113,7 @@ public class EventListeningHandle extends SimpleListenerHost {
     @EventHandler
     public ListeningStatus onMessageEvent(MemberJoinEvent event) {
         this.publishMessage(event);
+
         // 保持监听
         return ListeningStatus.LISTENING;
     }
