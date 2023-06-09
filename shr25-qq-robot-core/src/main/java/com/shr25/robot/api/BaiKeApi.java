@@ -1,6 +1,7 @@
 package com.shr25.robot.api;
 
 import com.google.common.collect.Multimap;
+import com.shr25.robot.common.RobotMsgPermission;
 import com.shr25.robot.exception.FileUploadException;
 import com.shr25.robot.qq.model.QqMessage;
 import com.shr25.robot.qq.util.MessageUtil;
@@ -13,6 +14,7 @@ import net.mamoe.mirai.message.data.MessageChainBuilder;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+import org.springframework.stereotype.Service;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -26,7 +28,19 @@ import java.util.Map;
  * @date 2022/2/26
  * @email happysnaker@foxmail.com
  */
+@Service
 public class BaiKeApi implements AbstractApiMessage{
+
+    public BaiKeApi() {
+        super();
+        log.info("开始加载 百度百科 插件~");
+
+        addCommand("百度百科", "进行百度百科搜索~", this.getName(), RobotMsgPermission.ALL, qqMessage -> {
+            handleMessageEvent(qqMessage);
+            return true;
+        });
+    }
+
     public static final String api = "https://baike.baidu.com/item/";
 
     /**

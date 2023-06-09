@@ -2,11 +2,13 @@ package com.shr25.robot.api;
 
 
 import com.google.common.collect.Multimap;
+import com.shr25.robot.common.RobotMsgPermission;
 import com.shr25.robot.qq.model.QqMessage;
 import com.shr25.robot.utils.IOUtil;
 import com.shr25.robot.utils.MapGetter;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.message.data.Message;
+import org.springframework.stereotype.Service;
 
 import java.net.URL;
 
@@ -17,7 +19,19 @@ import java.net.URL;
  * @date 2022/1/29
  * @email happysnaker@foxmail.com
  */
+@Service
 public class BingWallpaperAPI implements AbstractApiMessage{
+
+    public BingWallpaperAPI() {
+        super();
+        log.info("开始加载 bing 插件~");
+
+        addCommand("风景图", "进行bing风景图搜索~", this.getName(), RobotMsgPermission.ALL, qqMessage -> {
+            handleMessageEvent(qqMessage);
+            return true;
+        });
+    }
+
     public static String url = "https://bing.ioliu.cn/v1/rand?type=json";
 
     public static String getRandomImageUrl() {

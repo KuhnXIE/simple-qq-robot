@@ -20,17 +20,26 @@ package com.shr25.robot.music.impl;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.shr25.robot.common.RobotMsgPermission;
 import com.shr25.robot.music.MusicInfo;
 import com.shr25.robot.music.MusicSource;
 import com.shr25.robot.music.util.HttpRequestBuilder;
 import com.shr25.robot.music.util.JsonBuilder;
 import com.shr25.robot.music.util.Utils;
+import org.springframework.stereotype.Service;
 
 import java.io.FileNotFoundException;
-
+@Service
 public class QQMusicSource implements MusicSource {
 
 	public QQMusicSource() {
+		super();
+		log.info("开始加载 QQ音乐 插件~");
+
+		addCommand("QQ音乐", "进行特定引擎音乐搜索~", this.getName(), RobotMsgPermission.ALL, qqMessage -> {
+			sendMusic(qqMessage);
+			return true;
+		});
 	}
 
 	public String queryRealUrl(String songmid) {

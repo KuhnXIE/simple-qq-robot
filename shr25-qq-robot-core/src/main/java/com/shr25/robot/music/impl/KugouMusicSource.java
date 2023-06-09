@@ -19,17 +19,26 @@ package com.shr25.robot.music.impl;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.shr25.robot.common.RobotMsgPermission;
 import com.shr25.robot.music.MusicInfo;
 import com.shr25.robot.music.MusicSource;
 import com.shr25.robot.music.util.HttpRequestBuilder;
 import com.shr25.robot.music.util.Utils;
+import org.springframework.stereotype.Service;
 
+@Service
 public class KugouMusicSource implements MusicSource {
 	final static String COOKIE = "kg_mid=30f1713c23ab7bb496ab035b07dae834; ACK_SERVER_10015=%7B%22list%22%3A%5B%5B%22bjlogin-user.kugou.com%22%5D%5D%7D; ACK_SERVER_10016=%7B%22list%22%3A%5B%5B%22bjreg-user.kugou.com%22%5D%5D%7D; ACK_SERVER_10017=%7B%22list%22%3A%5B%5B%22bjverifycode.service.kugou.com%22%5D%5D%7D; Hm_lvt_aedee6983d4cfc62f509129360d6bb3d=1598198881; kg_dfid=1HZmYL0ngIYp0uu93N2m4s5P; kg_dfid_collect=d41d8cd98f00b204e9800998ecf8427e; Hm_lpvt_aedee6983d4cfc62f509129360d6bb3d=1598199021";
 
 	public KugouMusicSource() {
-	}
+		super();
+		log.info("开始加载 酷狗 插件~");
 
+		addCommand("酷狗", "进行特定引擎音乐搜索~", this.getName(), RobotMsgPermission.ALL, qqMessage -> {
+			sendMusic(qqMessage);
+			return true;
+		});
+	}
 	@Override
 	public MusicInfo get(String keyword) throws Exception {
 		keyword=Utils.urlEncode(keyword);

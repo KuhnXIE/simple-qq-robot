@@ -9,17 +9,15 @@ import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.MusicKind;
 import net.mamoe.mirai.message.data.MusicShare;
+import org.springframework.stereotype.Service;
 
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.*;
 
 /**
- * @author Happysnaker
- * @description
- * @date 2022/1/29
- * @email happysnaker@foxmail.com
  */
+@Service
 public class TongZhongApi implements AbstractApiMessage{
     public static String ok = "ok";
     /**

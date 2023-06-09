@@ -19,14 +19,27 @@ package com.shr25.robot.music.impl;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.shr25.robot.common.RobotMsgPermission;
 import com.shr25.robot.music.MusicInfo;
 import com.shr25.robot.music.MusicSource;
 import com.shr25.robot.music.util.HttpRequestBuilder;
 import com.shr25.robot.music.util.Utils;
+import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 
+@Service
 public class BiliBiliMusicSource implements MusicSource {
+
+	public BiliBiliMusicSource() {
+		super();
+		log.info("开始加载 哔哩哔哩 插件~");
+
+		addCommand("哔哩哔哩音乐", "进行特定引擎音乐搜索~", this.getName(), RobotMsgPermission.ALL, qqMessage -> {
+			sendMusic(qqMessage);
+			return true;
+		});
+	}
 
 	@Override
 	public MusicInfo get(String keyword) throws Exception {

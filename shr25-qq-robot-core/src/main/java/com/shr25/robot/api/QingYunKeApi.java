@@ -5,6 +5,7 @@ import com.shr25.robot.qq.model.QqMessage;
 import com.shr25.robot.utils.IOUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.message.data.Message;
+import org.springframework.stereotype.Service;
 
 import java.net.URL;
 import java.net.URLEncoder;
@@ -12,11 +13,8 @@ import java.util.Map;
 
 /**
  * 青云客 API 类，官网 <a href="http://api.qingyunke.com/">http://api.qingyunke.com/</a>
- * @author Happysnaker
- * @description
- * @date 2022/1/14
- * @email happysnaker@foxmail.com
  */
+@Service
 public class QingYunKeApi implements AbstractApiMessage{
     public static final String url = "http://api.qingyunke.com/api.php";
 

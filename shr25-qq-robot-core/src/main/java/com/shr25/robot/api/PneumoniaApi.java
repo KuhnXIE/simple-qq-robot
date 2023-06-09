@@ -2,6 +2,7 @@ package com.shr25.robot.api;
 
 import com.shr25.robot.utils.IOUtil;
 import com.shr25.robot.utils.MapGetter;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URL;
@@ -14,6 +15,7 @@ import java.util.Map;
  */
 @SuppressWarnings("unchecked")
 @Deprecated
+@Service
 public class PneumoniaApi {
     static String api = "https://c.m.163.com/ug/api/wuhan/app/data/list-total";
 

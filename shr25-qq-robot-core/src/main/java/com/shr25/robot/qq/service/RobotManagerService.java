@@ -4,18 +4,30 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.shr25.robot.base.BaseAbstractSim;
+import com.shr25.robot.common.AtCommand;
+import com.shr25.robot.common.SimCommand;
+import com.shr25.robot.music.MusicCardProvider;
+import com.shr25.robot.music.MusicFactory;
+import com.shr25.robot.music.MusicInfo;
+import com.shr25.robot.music.MusicSource;
 import com.shr25.robot.qq.conf.QqConfig;
 import com.shr25.robot.qq.model.QqGroupPlugin;
 import com.shr25.robot.qq.model.QqMessage;
 import com.shr25.robot.qq.model.Vo.QqPluginVo;
+import com.shr25.robot.qq.model.dict.AbstractDict;
 import com.shr25.robot.qq.model.qqPlugin.QqPlugin;
 import com.shr25.robot.qq.plugins.RobotPlugin;
+import com.shr25.robot.qq.plugins.at.AtPlugin;
+import com.shr25.robot.qq.plugins.at.ChatPlugin;
 import com.shr25.robot.qq.service.qqGroup.IQqGroupPluginService;
 import com.shr25.robot.qq.service.qqPlugin.IQqPluginService;
 import com.shr25.robot.qq.util.MessageUtil;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.event.Event;
+import net.mamoe.mirai.message.data.Message;
+import org.jetbrains.annotations.NotNull;
 import org.jsoup.helper.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -77,9 +89,18 @@ public class RobotManagerService {
      */
     private final Map<String, AtPlugin> atNamePluginMap = new HashMap<>();
     /**
-     * 所有命令的索引
+     * 所有艾特命令的索引
      */
     private final Map<String, AtCommand> atCommondPluginMap = new HashMap<>();
+
+    /**
+     * 普通命令插件集合
+     */
+    private Map<String, List<SimCommand>> baseSimMap = new HashMap<>();
+    /**
+     * 所有普通命令的索引
+     */
+    private final Map<String, SimCommand> simCommandMap = new HashMap<>();
 
     /**
      * 指令描述
@@ -112,8 +133,8 @@ public class RobotManagerService {
     public void publishMessage(Event event) {
         QqMessage qqMessage = new QqMessage(event, qqConfig, NORMAL_MANAGE_QQ);
 
-        if(qqMessage.getRobotMsgType().getMsgType() > 1){
-            if(StringUtils.isNotBlank(qqMessage.getCommand())) {
+        if (qqMessage.getRobotMsgType().getMsgType() > 1) {
+            if (StringUtils.isNotBlank(qqMessage.getCommand())) {
                 switch (qqMessage.getCommand()) {
                     case "help":
                         if (qqMessage.isManager()) {
@@ -150,14 +171,14 @@ public class RobotManagerService {
                         break;
                     case "全部插件":
                     case "所有插件":
-                        if(qqMessage.isManager()){
+                        if (qqMessage.isManager()) {
                             this.addAllPluginsListMessage(qqMessage);
                         }
                         break;
                     case "插件列表":
-                        if(StringUtils.isBlank(qqMessage.getContent())){
+                        if (StringUtils.isBlank(qqMessage.getContent())) {
                             this.addPluginsListMessage(qqMessage);
-                        }else{
+                        } else {
                             if (qqMessage.isManager()) {
                                 this.addPluginsListMessage(qqMessage, qqMessage.getParameter());
                             }
@@ -230,7 +251,7 @@ public class RobotManagerService {
                         break;
                 }
                 // 如果是艾特消息，判断是不是管理员
-            }else if (qqMessage.getAt()) {
+            } else if (qqMessage.getAt()) {
 /*                if (qqMessage.isManager() || qqMessage.isCanOperatorGroup()){
                     qqMessage.putReplyMessage(getCommandsStr(qqMessage));
                 }*/
@@ -239,33 +260,31 @@ public class RobotManagerService {
                 // 不是指令也不是艾特消息走这里
             } else {
                 String content = qqMessage.getContent();
-                if(StringUtils.isNotBlank(content)){
-//                    execute(qqMessage);
-                    String keyword = content.split(split)[0];
-                    // 点歌
-                    if (MusicFactory.containMusicSource(keyword)){
-                        sendMusic(qqMessage);
-                    }else {
+                if (StringUtils.isNotBlank(content)) {
+                    String command = subCommand(content);
+                    // 是普通指令
+                    if (simCommandMap.containsKey(command)){
+                        executeSim(qqMessage);
+                    } else {
                         // 如果都不是扩展功能就走自定义的聊天功能
                         chatByLexicon(qqMessage);
                     }
-                if(StringUtils.isNotBlank(qqMessage.getContent())){
-//                    execute(qqMessage);
-                    String content = qqMessage.getContent();
-                    String[] command = content.split(" ");
-                    // 判断是否存在调用第三方接口
-                    if (command.length > 1){
-                        AbstractApiMessage instance = ApiFactory.getInstance(command[0]);
-                        if (instance != null){
-                            instance.handleMessageEvent(qqMessage);
-                        }
-                    }
+                } else {
+                    execute(qqMessage);
                 }
             }
-        }else{
             execute(qqMessage);
         }
         sendMessage(qqMessage);
+    }
+
+    private void executeSim(QqMessage qqMessage) {
+        String command = subCommand(qqMessage.getContent());
+        getSimPlugins(qqMessage).forEach((key, atCommand) -> {
+            if (command.equals(key)) {
+                atCommand.execute(qqMessage);
+            }
+        });
     }
 
     private void executeAt(QqMessage qqMessage) {
@@ -279,6 +298,7 @@ public class RobotManagerService {
 
     @PostConstruct
     public void init(){
+        log.info("开始初始化所有#指令！");
         // 初始化插件
         SpringUtil.getBeansOfType(RobotPlugin.class).entrySet().stream().forEach(
           entity -> {
@@ -357,6 +377,25 @@ public class RobotManagerService {
                 throw new RuntimeException(e);
             }
         });
+
+        log.info("开始初始化所有普通命令！");
+        SpringUtil.getBeansOfType(BaseAbstractSim.class).forEach((key, value) -> {
+            log.info("{}====>{}", key, value.getClass().getName());
+            try {
+                BaseAbstractSim baseAbstractSim = (BaseAbstractSim) SpringUtil.getBean(Class.forName(value.getClass().getName()));
+                String name = baseAbstractSim.getName();
+                Map<String, SimCommand> commands = baseAbstractSim.getCommands();
+                if (!commands.isEmpty()){
+                    simCommandMap.putAll(commands);
+                }
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        // 初始化分类
+        if (!simCommandMap.isEmpty()) {
+            baseSimMap = simCommandMap.values().stream().collect(Collectors.groupingBy(SimCommand::getClassify));
+        }
     }
 
     private void execute(QqMessage qqMessage){
@@ -632,6 +671,15 @@ public class RobotManagerService {
     }
 
     /**
+     * 获取艾特插件列表
+     *
+     * @param qqMessage qq消息
+     */
+    private Map<String, SimCommand> getSimPlugins(QqMessage qqMessage) {
+        return simCommandMap;
+    }
+
+    /**
      * 获取群插件列表
      *
      * @param groupId qq群Id
@@ -857,8 +905,18 @@ public class RobotManagerService {
         chatPattern.chat(qqMessage);
     }
 
+    /**
+     * 获取@指令集
+     */
     public Map<String, String> getAtPluginDescMap() {
         return atPluginDescMap;
+    }
+
+    /**
+     * 获取指定分类的菜单
+     */
+    public List< SimCommand> getSimPluginDescMap(String name) {
+        return baseSimMap.get(name);
     }
 
 }

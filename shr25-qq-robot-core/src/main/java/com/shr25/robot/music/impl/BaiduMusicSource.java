@@ -19,19 +19,28 @@ package com.shr25.robot.music.impl;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.shr25.robot.common.RobotMsgPermission;
 import com.shr25.robot.music.MusicInfo;
 import com.shr25.robot.music.MusicSource;
 import com.shr25.robot.music.util.HttpRequestBuilder;
 import com.shr25.robot.music.util.Utils;
+import org.springframework.stereotype.Service;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+@Service
 public class BaiduMusicSource implements MusicSource {
 
 	public BaiduMusicSource() {
-	}
+		super();
+		log.info("开始加载 千千静听 插件~");
 
+		addCommand("千千静听", "进行特定引擎音乐搜索~", this.getName(), RobotMsgPermission.ALL, qqMessage -> {
+			sendMusic(qqMessage);
+			return true;
+		});
+	}
 	@Override
 	public MusicInfo get(String keyword) throws Exception {
 		JsonObject jo;

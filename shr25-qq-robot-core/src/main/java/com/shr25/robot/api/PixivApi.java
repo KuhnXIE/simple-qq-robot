@@ -1,6 +1,7 @@
 package com.shr25.robot.api;
 
 import com.google.common.collect.Multimap;
+import com.shr25.robot.common.RobotMsgPermission;
 import com.shr25.robot.qq.model.QqMessage;
 import com.shr25.robot.utils.IOUtil;
 import com.shr25.robot.utils.MapGetter;
@@ -9,6 +10,7 @@ import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.message.data.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URL;
@@ -23,7 +25,34 @@ import java.util.List;
  * @date 2022/1/20
  * @email happysnaker@foxmail.com
  */
+@Service
 public class PixivApi implements AbstractApiMessage{
+
+    public PixivApi() {
+        super();
+        log.info("开始加载 pixiv 插件~");
+
+        addCommand("神秘代码", "获取神秘代码，未知~", this.getName(), RobotMsgPermission.ALL, qqMessage -> {
+            handleMessageEvent(qqMessage);
+            return true;
+        });
+
+        addCommand("美图", "获取一张美图~", this.getName(), RobotMsgPermission.ALL, qqMessage -> {
+            handleMessageEvent(qqMessage);
+            return true;
+        });
+
+        addCommand("涩图", "获取一张涩图~", this.getName(), RobotMsgPermission.ALL, qqMessage -> {
+            handleMessageEvent(qqMessage);
+            return true;
+        });
+
+        addCommand("高清涩图", "获取一张高清涩图~", this.getName(), RobotMsgPermission.ALL, qqMessage -> {
+            handleMessageEvent(qqMessage);
+            return true;
+        });
+    }
+
 
     private static Logger logger = LoggerFactory.getLogger(PixivApi.class);
 

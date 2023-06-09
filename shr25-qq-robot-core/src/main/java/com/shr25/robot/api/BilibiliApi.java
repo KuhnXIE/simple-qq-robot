@@ -2,12 +2,14 @@ package com.shr25.robot.api;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Multimap;
+import com.shr25.robot.common.RobotMsgPermission;
 import com.shr25.robot.entity.BilibiliDynamic;
 import com.shr25.robot.qq.model.QqMessage;
 import com.shr25.robot.utils.IOUtil;
 import com.shr25.robot.utils.MapGetter;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.message.data.Message;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URL;
@@ -16,7 +18,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Service
 public class BilibiliApi implements AbstractApiMessage{
+
+    public BilibiliApi() {
+        super();
+        log.info("开始加载 番剧 插件~");
+
+        addCommand("番剧", "进行b站番剧搜索~", this.getName(), RobotMsgPermission.ALL, qqMessage -> {
+            handleMessageEvent(qqMessage);
+            return true;
+        });
+
+        addCommand("UP", "进行b站UP动态获取~", this.getName(), RobotMsgPermission.ALL, qqMessage -> {
+            handleMessageEvent(qqMessage);
+            return true;
+        });
+    }
     /**
      * 查询动态 API
      */

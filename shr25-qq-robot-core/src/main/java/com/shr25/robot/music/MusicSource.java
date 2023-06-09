@@ -19,10 +19,22 @@ package com.shr25.robot.music;
 
 // TODO: Auto-generated Javadoc
 
+import com.shr25.robot.base.BaseAbstractSim;
+import com.shr25.robot.qq.model.QqMessage;
+import net.mamoe.mirai.message.data.Message;
+
+import static com.shr25.robot.qq.service.RobotManagerService.subParam;
+
 /**
  * 音乐来源接口.
  */
-public interface MusicSource {
+public abstract interface MusicSource extends BaseAbstractSim {
+
+	String name = "音乐";
+
+	default String getName(){
+		return name;
+	}
 
 	/**
 	 * 搜索对应关键词并返回音乐信息.<br>
@@ -51,4 +63,39 @@ public interface MusicSource {
 	public default boolean isVisible() {
 		return true;
 	};
+
+	/**
+	 * 根据关键字返回音乐
+	 */
+	default void sendMusic(QqMessage qqMessage){
+		String content = qqMessage.getContent();
+		// 截取后面的关键字
+		String keyword = subParam(content);
+/*		MusicSource musicSource = MusicFactory.getMusicSource(subCommand(content));
+		if (musicSource == null)
+			throw new IllegalArgumentException("music source not exists");*/
+		// 此处使用默认样板
+		MusicCardProvider cb = MusicFactory.getCard("Mirai");
+		if (cb == null)
+			throw new IllegalArgumentException("card template not exists");
+
+		MusicInfo musicInfo;
+		try {
+			musicInfo = this.get(keyword);
+		} catch (Throwable t) {
+			qqMessage.putReplyMessage("无法找到歌曲" + keyword);
+			return;
+		}
+		try {
+			Message m = cb.process(musicInfo, qqMessage.getContact());
+			if (m != null) {
+				qqMessage.putReplyMessage(m);
+				return;
+			}
+		} catch (Throwable t) {
+			log.error("封装音乐消息失败！");
+		}
+		qqMessage.putReplyMessage("分享歌曲失败。");
+	}
+
 }

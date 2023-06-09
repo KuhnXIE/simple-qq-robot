@@ -105,7 +105,7 @@ public class ChatPlugin extends AtPlugin{
         MessageChainBuilder messageChainBuilder = new MessageChainBuilder();
         messageChainBuilder.append(at);
         if (abstractDict == null){
-            messageChainBuilder.append("不存在该模式！");
+            messageChainBuilder.append("不存在该模式！例:修改聊天模式 傲娇");
         }else {
             ChatPlugin.chatPattern = abstractDict;
             messageChainBuilder.add("设置成功，当前为" + abstractDict.type() + "模式！");

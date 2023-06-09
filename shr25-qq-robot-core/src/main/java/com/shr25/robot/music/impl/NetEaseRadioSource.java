@@ -20,18 +20,27 @@ package com.shr25.robot.music.impl;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.shr25.robot.common.RobotMsgPermission;
 import com.shr25.robot.music.MusicInfo;
 import com.shr25.robot.music.MusicSource;
 import com.shr25.robot.music.NetEaseCrypto;
 import com.shr25.robot.music.util.HttpRequestBuilder;
 import com.shr25.robot.music.util.JsonBuilder;
 import com.shr25.robot.music.util.Utils;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-
+@Service
 public class NetEaseRadioSource implements MusicSource {
 
 	public NetEaseRadioSource() {
+		super();
+		log.info("开始加载 网易云电台 插件~");
+
+		addCommand("网易云电台", "进行特定引擎音乐搜索~", this.getName(), RobotMsgPermission.ALL, qqMessage -> {
+			sendMusic(qqMessage);
+			return true;
+		});
 	}
 
 	public String queryRealUrl(String id) throws Exception {
