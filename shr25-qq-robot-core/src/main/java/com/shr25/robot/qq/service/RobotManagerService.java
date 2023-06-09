@@ -4,6 +4,11 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.shr25.robot.music.MusicCardProvider;
+import com.shr25.robot.music.MusicFactory;
+import com.shr25.robot.music.MusicInfo;
+import com.shr25.robot.music.MusicSource;
+import com.shr25.robot.music.util.Utils;
 import com.shr25.robot.qq.conf.QqConfig;
 import com.shr25.robot.qq.model.QqMessage;
 import com.shr25.robot.qq.model.Vo.QqPluginVo;
@@ -16,6 +21,7 @@ import com.shr25.robot.qq.util.MessageUtil;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.event.Event;
+import net.mamoe.mirai.message.data.Message;
 import org.jsoup.helper.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -71,6 +77,8 @@ public class RobotManagerService {
 
     /** 缓存qq插件  插件id => 插件 */
     private final Map<String, QqPlugin> qqPluginNameMap = new HashMap<>();
+
+    private final String split = " ";
 
     public String getDesc() {
         return "系统管理 使用方式：\n"
@@ -220,8 +228,13 @@ public class RobotManagerService {
                 }
                 // 不是指令也不是艾特消息走这里
             } else {
-                if(StringUtils.isNotBlank(qqMessage.getContent())){
-                    execute(qqMessage);
+                String content = qqMessage.getContent();
+                if(StringUtils.isNotBlank(content)){
+//                    execute(qqMessage);
+                    String keyword = content.split(split)[0];
+                    if (MusicFactory.containMusicSource(keyword)){
+                        sendMusic(qqMessage);
+                    }
                 }
             }
         }else{
@@ -710,4 +723,40 @@ public class RobotManagerService {
             });
         }
     }
+
+    /**
+     * 根据关键字返回音乐
+     * @param qqMessage
+     */
+    private void sendMusic(QqMessage qqMessage){
+        String content = qqMessage.getContent();
+        // 截取后面的关键字
+        String keyword = content.substring(content.indexOf(split) + 1);
+        MusicSource musicSource = MusicFactory.getMusicSource(content.substring(0, content.indexOf(split)));
+        if (musicSource == null)
+            throw new IllegalArgumentException("music source not exists");
+        // 此处使用默认样板
+        MusicCardProvider cb = MusicFactory.getCard("Mirai");
+        if (cb == null)
+            throw new IllegalArgumentException("card template not exists");
+
+        MusicInfo musicInfo;
+        try {
+            musicInfo = musicSource.get(keyword);
+        } catch (Throwable t) {
+            qqMessage.putReplyMessage("无法找到歌曲" + keyword);
+            return;
+        }
+        try {
+            Message m = cb.process(musicInfo, qqMessage.getContact());
+            if (m != null) {
+                qqMessage.putReplyMessage(m);
+                return;
+            }
+        } catch (Throwable t) {
+            log.error("封装音乐消息失败！");
+        }
+        qqMessage.putReplyMessage("分享歌曲失败。");
+    }
+
 }
