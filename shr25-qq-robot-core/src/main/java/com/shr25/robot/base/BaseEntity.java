@@ -15,7 +15,7 @@ public class BaseEntity implements Serializable
     public static final long serialVersionUID = 1L;
 
     /** 主键 */
-    @TableId(type = IdType.ASSIGN_ID)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     public Long getId() {

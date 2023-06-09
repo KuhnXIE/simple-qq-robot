@@ -37,7 +37,7 @@ public interface MusicSource {
 	 * 搜索对应音乐ID并返回音乐信息.<br>
 	 * 返回音乐信息不能为null。
 	 * 
-	 * @param keyword 音乐
+	 * @param id 音乐
 	 * @return return 返回音乐信息数据类
 	 * @throws Exception 如果发生异常或者找不到音乐，都抛出异常。
 	 */
