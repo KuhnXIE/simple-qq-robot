@@ -4,12 +4,10 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
-import com.shr25.robot.api.AbstractApiMessage;
-import com.shr25.robot.api.ApiFactory;
 import com.shr25.robot.qq.conf.QqConfig;
+import com.shr25.robot.qq.model.QqGroupPlugin;
 import com.shr25.robot.qq.model.QqMessage;
 import com.shr25.robot.qq.model.Vo.QqPluginVo;
-import com.shr25.robot.qq.model.QqGroupPlugin;
 import com.shr25.robot.qq.model.qqPlugin.QqPlugin;
 import com.shr25.robot.qq.plugins.RobotPlugin;
 import com.shr25.robot.qq.service.qqGroup.IQqGroupPluginService;
@@ -73,6 +71,22 @@ public class RobotManagerService {
 
     /** 缓存qq插件  插件id => 插件 */
     private final Map<String, QqPlugin> qqPluginNameMap = new HashMap<>();
+
+    /**
+     * 艾特插件
+     */
+    private final Map<String, AtPlugin> atNamePluginMap = new HashMap<>();
+    /**
+     * 所有命令的索引
+     */
+    private final Map<String, AtCommand> atCommondPluginMap = new HashMap<>();
+
+    /**
+     * 指令描述
+     */
+    private final Map<String, String> atPluginDescMap = new HashMap<>();
+
+    public static final String split = " ";
 
     public String getDesc() {
         return "系统管理 使用方式：\n"
@@ -217,11 +231,24 @@ public class RobotManagerService {
                 }
                 // 如果是艾特消息，判断是不是管理员
             }else if (qqMessage.getAt()) {
-                if (qqMessage.isManager() || qqMessage.isCanOperatorGroup()){
+/*                if (qqMessage.isManager() || qqMessage.isCanOperatorGroup()){
                     qqMessage.putReplyMessage(getCommandsStr(qqMessage));
-                }
+                }*/
+                executeAt(qqMessage);
+
                 // 不是指令也不是艾特消息走这里
             } else {
+                String content = qqMessage.getContent();
+                if(StringUtils.isNotBlank(content)){
+//                    execute(qqMessage);
+                    String keyword = content.split(split)[0];
+                    // 点歌
+                    if (MusicFactory.containMusicSource(keyword)){
+                        sendMusic(qqMessage);
+                    }else {
+                        // 如果都不是扩展功能就走自定义的聊天功能
+                        chatByLexicon(qqMessage);
+                    }
                 if(StringUtils.isNotBlank(qqMessage.getContent())){
 //                    execute(qqMessage);
                     String content = qqMessage.getContent();
@@ -241,8 +268,18 @@ public class RobotManagerService {
         sendMessage(qqMessage);
     }
 
+    private void executeAt(QqMessage qqMessage) {
+        String command = subCommand(qqMessage.getContent());
+        getAtPlugins(qqMessage).forEach((key, atCommand) -> {
+            if (command.equals(key)) {
+                atCommand.execute(qqMessage);
+            }
+        });
+    }
+
     @PostConstruct
     public void init(){
+        // 初始化插件
         SpringUtil.getBeansOfType(RobotPlugin.class).entrySet().stream().forEach(
           entity -> {
               log.info("{}====>{}", entity.getKey(), entity.getValue().getClass().getName());
@@ -301,6 +338,24 @@ public class RobotManagerService {
         });
         manages.entrySet().forEach((entry) -> {
             entry.setValue(robotPluginSort(entry.getValue()));
+        });
+
+        log.info("开始初始化所有@命令！");
+        SpringUtil.getBeansOfType(AtPlugin.class).forEach((key, value) -> {
+            log.info("{}====>{}", key, value.getClass().getName());
+            try {
+                AtPlugin atPlugin = (AtPlugin) SpringUtil.getBean(Class.forName(value.getClass().getName()));
+                atNamePluginMap.put(atPlugin.getName(), atPlugin);
+                Map<String, AtCommand> commands = atPlugin.getCommands();
+                if (!commands.isEmpty()) {
+                    atCommondPluginMap.putAll(commands);
+                    for (Map.Entry<String, AtCommand> entry : commands.entrySet()) {
+                        atPluginDescMap.put(entry.getKey(), entry.getValue().getDesc());
+                    }
+                }
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
         });
     }
 
@@ -568,6 +623,15 @@ public class RobotManagerService {
     }
 
     /**
+     * 获取艾特插件列表
+     *
+     * @param qqMessage qq消息
+     */
+    private Map<String, AtCommand> getAtPlugins(QqMessage qqMessage) {
+        return atCommondPluginMap;
+    }
+
+    /**
      * 获取群插件列表
      *
      * @param groupId qq群Id
@@ -601,7 +665,7 @@ public class RobotManagerService {
                 text.append(String.format(template, item.getName(), item.getState()>0));
             });
         }
-        if(text.toString() != ""){
+        if(!text.toString().equals("")){
             qqMessage.putReplyMessage(text.toString());
         }
     }
@@ -721,4 +785,80 @@ public class RobotManagerService {
             });
         }
     }
+
+    /**
+     * 根据关键字返回音乐
+     */
+    private void sendMusic(QqMessage qqMessage){
+        String content = qqMessage.getContent();
+        // 截取后面的关键字
+        String keyword = subParam(content);
+        MusicSource musicSource = MusicFactory.getMusicSource(subCommand(content));
+        if (musicSource == null)
+            throw new IllegalArgumentException("music source not exists");
+        // 此处使用默认样板
+        MusicCardProvider cb = MusicFactory.getCard("Mirai");
+        if (cb == null)
+            throw new IllegalArgumentException("card template not exists");
+
+        MusicInfo musicInfo;
+        try {
+            musicInfo = musicSource.get(keyword);
+        } catch (Throwable t) {
+            qqMessage.putReplyMessage("无法找到歌曲" + keyword);
+            return;
+        }
+        try {
+            Message m = cb.process(musicInfo, qqMessage.getContact());
+            if (m != null) {
+                qqMessage.putReplyMessage(m);
+                return;
+            }
+        } catch (Throwable t) {
+            log.error("封装音乐消息失败！");
+        }
+        qqMessage.putReplyMessage("分享歌曲失败。");
+    }
+
+    /**
+     * 从指令中截取命令
+     * @param content 指令
+     * @return 命令
+     */
+    @NotNull
+    public static String subCommand(String content) {
+        int end = content.indexOf(split);
+        if (end < 0){
+            end = content.length();
+        }
+        return content.substring(0, end);
+    }
+
+    /**
+     * 从指令中截取参数
+     * @param content 指令
+     * @return 参数
+     */
+    @NotNull
+    public static String subParam(String content) {
+        int start = content.indexOf(split);
+        if (start < 0){
+            return "";
+        }else {
+            return content.substring(start + 1);
+        }
+    }
+
+    /**
+     * 根据词库进行聊天
+     */
+    private void chatByLexicon(QqMessage qqMessage){
+        AbstractDict chatPattern = ChatPlugin.getChatPattern();
+        chatPattern.chat(qqMessage);
+    }
+
+    public Map<String, String> getAtPluginDescMap() {
+        return atPluginDescMap;
+    }
+
 }
