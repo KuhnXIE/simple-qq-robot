@@ -128,17 +128,23 @@
 
     <build>
         <plugins>
-            <plugin>
+           <!-- <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.0.2</version>
                 <configuration>
-                    <!--一下分别是排除源文件目录，资源文件， 资源文件目录 -->
+                    &lt;!&ndash;一下分别是排除源文件目录，资源文件， 资源文件目录 &ndash;&gt;
                     <excludes>
                         <exclude>/com/shr25/robot/StartUpApplication.class</exclude>
                         <exclude>/application-dev.yml</exclude>
                     </excludes>
                 </configuration>
+            </plugin>-->
+
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>2.5.5</version>
             </plugin>
         </plugins>
     </build>

@@ -1,9 +1,11 @@
 package com.shr25.robot.qq.util;
 
 import com.shr25.robot.qq.conf.ChatBotConfig;
+import com.shr25.robot.qq.conf.ProxyConfig;
 import com.theokanning.openai.completion.chat.ChatCompletionRequest;
 import com.theokanning.openai.completion.chat.ChatMessage;
 import com.theokanning.openai.service.OpenAiService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -21,6 +23,8 @@ public class ChatBotUtil {
     }
 
     private static ChatBotConfig chatBotConfig;
+    @Autowired
+    private ProxyConfig proxyConfig;
 
     private static final Map<String, List<ChatMessage>> PROMPT_MAP = new HashMap<>();
     private static final Map<OpenAiService, Integer> COUNT_FOR_OPEN_AI_SERVICE = new HashMap<>();
@@ -28,9 +32,11 @@ public class ChatBotUtil {
 
     @PostConstruct
     public void init() {
-        completionRequestBuilder = ChatCompletionRequest.builder().model(chatBotConfig.getModel()).temperature(chatBotConfig.getTemperature()).maxTokens(chatBotConfig.getMaxToken());
-        for (OpenAiService openAiService : chatBotConfig.getOpenAiServiceList()) {
-            COUNT_FOR_OPEN_AI_SERVICE.put(openAiService, 0);
+        if (proxyConfig.isStart()){
+            completionRequestBuilder = ChatCompletionRequest.builder().model(chatBotConfig.getModel()).temperature(chatBotConfig.getTemperature()).maxTokens(chatBotConfig.getMaxToken());
+            for (OpenAiService openAiService : chatBotConfig.getOpenAiServiceList()) {
+                COUNT_FOR_OPEN_AI_SERVICE.put(openAiService, 0);
+            }
         }
     }
 

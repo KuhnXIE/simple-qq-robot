@@ -39,6 +39,7 @@ chatgpt:
   apiKey:
     - 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
 
+
 spring:
   datasource:
     #    type: com.alibaba.druid.pool.DruidDataSource
@@ -46,5 +47,5 @@ spring:
     #    url: jdbc:sqlite:db/shrzhr.db
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://127.0.0.1:3306/qqrobot?useUnicode=true&useSSL=false&characterEncoding=utf-8&serverTimezone=UTC
-    username: root
-    password: 123456
+    username: qqrobot
+    password: dASD3TFyD3JXCp7b

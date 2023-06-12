@@ -1,5 +1,6 @@
 package com.shr25.robot.qq.event;
 
+import com.shr25.robot.qq.conf.ProxyConfig;
 import com.shr25.robot.qq.exception.ChatException;
 import com.shr25.robot.qq.model.Vo.ChatVo;
 import com.shr25.robot.qq.service.RobotManagerService;
@@ -33,6 +34,8 @@ public class EventListeningHandle extends SimpleListenerHost {
     @Resource
     private InteractService interactService;
     private static final String RESET_WORD = "重置会话";
+    @Autowired
+    private ProxyConfig proxyConfig;
 
     /**
      * 监听陌生人消息
@@ -68,12 +71,15 @@ public class EventListeningHandle extends SimpleListenerHost {
      */
     @EventHandler
     public ListeningStatus onFriendMessageEvent(FriendMessageEvent event) {
-//        this.publishMessage(event);
+        if (proxyConfig.isStart()){
+            ChatVo chatVo = new ChatVo();
+            chatVo.setSessionId(String.valueOf(event.getSubject().getId()));
+            String prompt = event.getMessage().contentToString().trim();
+            response(event, chatVo, prompt);
+        }else {
+            this.publishMessage(event);
+        }
 
-        ChatVo chatVo = new ChatVo();
-        chatVo.setSessionId(String.valueOf(event.getSubject().getId()));
-        String prompt = event.getMessage().contentToString().trim();
-        response(event, chatVo, prompt);
         // 保持监听
         return ListeningStatus.LISTENING;
     }

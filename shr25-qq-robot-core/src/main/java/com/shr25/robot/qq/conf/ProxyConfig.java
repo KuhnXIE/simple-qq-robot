@@ -16,4 +16,5 @@ import org.springframework.stereotype.Component;
 public class ProxyConfig {
     private String host;
     private String port;
+    private boolean start;
 }
