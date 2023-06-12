@@ -134,7 +134,7 @@ public class BaiKeApi implements AbstractApiMessage{
                     }
                     builder.append(qqMessage.uploadImage(new URL(image)));
                 } catch (FileUploadException | MalformedURLException e) {
-                    throw new RuntimeException(e);
+                    builder.append("图片未找到！");
                 }
             }
             qqMessage.putReplyMessage(builder.build());

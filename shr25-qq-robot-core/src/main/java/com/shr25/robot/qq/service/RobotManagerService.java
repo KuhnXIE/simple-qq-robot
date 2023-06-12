@@ -163,6 +163,8 @@ public class RobotManagerService {
     public void publishMessage(Event event) {
         QqMessage qqMessage = new QqMessage(event, qqConfig, NORMAL_MANAGE_QQ);
 
+        log.info("收到{}的消息{}", qqMessage.getSenderId(), qqMessage.getContent());
+
         if (qqMessage.getRobotMsgType().getMsgType() > 1) {
             if (StringUtils.isNotBlank(qqMessage.getCommand())) {
                 switch (qqMessage.getCommand()) {

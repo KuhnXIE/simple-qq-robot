@@ -58,6 +58,7 @@ public class ChickenApi implements AbstractApiMessage{
 
     @Override
     public Multimap<Contact, Message> handleMessageEvent(QqMessage qqMessage) {
-        return null;
+        qqMessage.putReplyMessage(generate());
+        return qqMessage.getReplyMessages();
     }
 }
