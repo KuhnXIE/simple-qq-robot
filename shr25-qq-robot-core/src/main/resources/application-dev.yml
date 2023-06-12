@@ -16,6 +16,7 @@ project:
     workspace: cache
     #是否开启日志
     log-out: true
+    color-switch: true
     #简化命令 true进入推荐命令模式  false 全部命令模式
     simplify-command: true
     #管理员qq列表

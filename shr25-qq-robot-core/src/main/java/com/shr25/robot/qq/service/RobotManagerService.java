@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.shr25.robot.api.QingYunKeApi;
 import com.shr25.robot.base.BaseAbstractSim;
 import com.shr25.robot.common.AtCommand;
 import com.shr25.robot.common.SimCommand;
@@ -109,25 +110,54 @@ public class RobotManagerService {
 
     public static final String split = " ";
 
+    /***************
+     =======功能菜单=======
+     签        到星        座
+     新        闻礼        物
+     📆黄        历天        气🌧️
+     人        品点        歌
+     配        对雇        佣🥳
+     比        武结        婚
+     花        墙灵        宠
+     拆  盲  盒抽        奖
+     🤝查  邀  请抽        签
+     💖逼        婚抢        婚️‍
+     🔮贵        族祈        福🧧
+     领结婚证双        修
+     👰🏻婚姻排行生  宝  宝
+     排  行  榜猜  图  片
+     王者荣耀猜  歌  名
+     和平精英英雄联盟⭐
+     舔狗日记历史今天
+     成语接龙科举问答
+     进群提醒小  黑  屋
+     退群提醒黑  名  单
+     新人欢迎群  空  间
+     改名提醒C P  D D
+     查有效期智能聊天
+     群  指  令防  撤   回🎊
+     🤡讲  笑  话查  活   跃️
+     =================
+     所有功能不用@我
+     *******************/
+
     public String getDesc() {
         return "系统管理 使用方式：\n"
-          + "初始化\n"
-          + "开机\n"
-          + "关机\n"
-          + "管理员列表\n"
-          + "添加管理员 {qq号/@群成员}\n"
-          + "删除管理员 {qq号/@群成员}\n"
-          + "群白名单\n"
-          + "添加群 {群号}\n"
-          + "删除群 {群号}\n"
-          + "机器人状态\n"
-          + "全部插件/#所有插件\n"
-          + "插件列表 {群号，管理员发群消息可以省略}\n"
-          + "添加插件 {插件名称} {群号，管理员发群消息可以省略} \n"
-          + "删除插件 {插件名称} {群号，管理员发群消息可以省略} \n"
-          + "开启插件 {插件名称}\n"
-          + "关闭插件 {插件名称}\n"
-          + "插件详情 {插件名称}\n";
+          + "#初始化  " + "#开机\n"
+          + "#关机  " + "管理员列表\n"
+          + "#添加管理员 {qq号/@群成员}\n"
+          + "#删除管理员 {qq号/@群成员}\n"
+          + "#群白名单\n"
+          + "#添加群 {群号}\n"
+          + "#删除群 {群号}\n"
+          + "#机器人状态\n"
+          + "#全部插件/#所有插件\n"
+//          + "插件列表 {群号，管理员发群消息可以省略}\n"
+//          + "添加插件 {插件名称} {群号，管理员发群消息可以省略} \n"
+//          + "删除插件 {插件名称} {群号，管理员发群消息可以省略} \n"
+          + "#开启插件 {插件名称}\n"
+          + "#关闭插件 {插件名称}\n"
+          + "#插件详情 {插件名称}\n";
     }
 
     public void publishMessage(Event event) {
@@ -137,10 +167,6 @@ public class RobotManagerService {
             if (StringUtils.isNotBlank(qqMessage.getCommand())) {
                 switch (qqMessage.getCommand()) {
                     case "help":
-                        if (qqMessage.isManager()) {
-                            qqMessage.putReplyMessage(getDesc());
-                        }
-                        break;
                     case "管理":
                         if (qqMessage.isManager()) {
                             qqMessage.putReplyMessage(getDesc());
@@ -268,6 +294,13 @@ public class RobotManagerService {
                     } else {
                         // 如果都不是扩展功能就走自定义的聊天功能
                         chatByLexicon(qqMessage);
+                        // fixme 此处是最后一个设置消息的地方，其它命令都需要在上面执行完
+                        // 如果什么消息都没有，就调用青云客
+                        if (qqMessage.getReplyMessages().isEmpty()){
+                            if (!qqMessage.getContent().contains("http")){
+                                qqMessage.putReplyMessage(QingYunKeApi.getMessage(qqMessage.getContent()));
+                            }
+                        }
                     }
                 } else {
                     execute(qqMessage);
@@ -275,6 +308,7 @@ public class RobotManagerService {
             }
             execute(qqMessage);
         }
+
         sendMessage(qqMessage);
     }
 

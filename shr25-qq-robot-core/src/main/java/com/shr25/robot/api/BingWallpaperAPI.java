@@ -46,6 +46,7 @@ public class BingWallpaperAPI implements AbstractApiMessage{
 
     @Override
     public Multimap<Contact, Message> handleMessageEvent(QqMessage qqMessage) {
-        return null;
+        sendImage(qqMessage, getRandomImageUrl());
+        return qqMessage.getReplyMessages();
     }
 }

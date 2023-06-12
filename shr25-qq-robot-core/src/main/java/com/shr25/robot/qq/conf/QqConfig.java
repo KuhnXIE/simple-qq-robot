@@ -42,6 +42,11 @@ public class QqConfig {
     /** 简化命令 true进入推荐命令模式  false 全部命令模式*/
     private boolean simplifyCommand = false;
 
+    /**
+     * 搞颜色
+     */
+    private boolean colorSwitch = true;
+
     /** 管理员qq列表 */
     private Set<Long> rootManageQq;
 
@@ -49,4 +54,5 @@ public class QqConfig {
      * 请求网络 API 的超时事件，以 ms 为单位
      */
     public static int timeout = 3000;
+
 }

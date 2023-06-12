@@ -4,6 +4,9 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -513,6 +516,14 @@ public class DateUtils {
             }
             return calendar.getTime();
         }
+    }
+
+    public static LocalDateTime getZero() {
+        // 获取今天的日期
+        LocalDate today = LocalDate.now();
+
+        // 获取今天的零点时间
+        return LocalDateTime.of(today, LocalTime.MIDNIGHT);
     }
 
     public static class TimeSecond{
