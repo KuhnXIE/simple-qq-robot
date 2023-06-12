@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- status:log4j2自身组件的日志输出级别,monitorInterval:隔多少秒重新检查配置文件 -->
+<Configuration status="WARN" monitorInterval="1800">
+    <Properties>
+    	<Property name="PROJECT_PREFIX_NAME">apartment</Property>
+    	<Property name="LOG_HOME">./logs</Property>
+        <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
+    	<Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</Property>
+	</Properties>
+    
+    <Appenders>
+        <Console name="STDOUT" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
+        </Console>
+    
+        <Console name="CONSOLE" target="SYSTEM_OUT">
+            <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="[%d{HH:mm:ss.SSS}][%p][%c{40}][%t] %m%n"/>
+        </Console>
+    
+        <!-- 按照每天生成info及以上级别的日志文件 -->
+        <RollingRandomAccessFile name="FILE-INFO" fileName="${LOG_HOME}/info/${PROJECT_PREFIX_NAME}-info.log"
+            filePattern="${LOG_HOME}/info/${PROJECT_PREFIX_NAME}-%d{yyyy-MM-dd}-info.%i.log">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <!-- 每天创建一个日志文件 -->
+                <TimeBasedTriggeringPolicy interval="1"/>
+                <!-- 日志达到10MB时打包 -->
+                <SizeBasedTriggeringPolicy size="10MB"/>
+            </Policies>
+            <!--最大存放的日志文件数 -->
+            <DefaultRolloverStrategy max="1000" />
+            <Filters>
+                <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+        </RollingRandomAccessFile>
+        
+        <!-- 按照每天生成debug及以上级别的日志文件 -->
+        <RollingRandomAccessFile name="FILE-DEBUG" fileName="${LOG_HOME}/debug/${PROJECT_PREFIX_NAME}-debug.log"
+            filePattern="${LOG_HOME}/debug/${PROJECT_PREFIX_NAME}-%d{yyyy-MM-dd}-debug.%i.log">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <!-- 每天创建一个日志文件 -->
+                <TimeBasedTriggeringPolicy interval="1"/>
+                <!-- 日志达到10MB时打包 -->
+                <SizeBasedTriggeringPolicy size="10MB"/>
+            </Policies>
+            <!--最大存放的日志文件数 -->
+            <DefaultRolloverStrategy max="1000" />
+            <Filters>
+                <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+        </RollingRandomAccessFile>
+        
+        <!-- 按照每天生成error及以上级别的日志文件 -->
+        <RollingRandomAccessFile name="FILE-ERROR" fileName="${LOG_HOME}/error/${PROJECT_PREFIX_NAME}-error.log"
+            filePattern="${LOG_HOME}/error/${PROJECT_PREFIX_NAME}-%d{yyyy-MM-dd}-error.%i.log">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <!-- 每天创建一个日志文件 -->
+                <TimeBasedTriggeringPolicy interval="1"/>
+                <!-- 日志达到10MB时打包 -->
+                <SizeBasedTriggeringPolicy size="10MB"/>
+            </Policies>
+            <!--最大存放的日志文件数 -->
+            <DefaultRolloverStrategy max="1000" />
+            <Filters>
+                <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+        </RollingRandomAccessFile>
+    
+    </Appenders>
+
+    <Loggers>
+<!--    	<Root level="INFO">
+    		<AppenderRef ref="CONSOLE" />
+    	</Root>-->
+        <Logger level="DEBUG">
+            <AppenderRef ref="FILE-INFO" />
+        </Logger>
+    </Loggers>
+
+
+</Configuration>
